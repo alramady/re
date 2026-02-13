@@ -10,8 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users, Building2, Calendar, CreditCard, BarChart3,
-  Loader2, CheckCircle, XCircle, Shield, TrendingUp
+  Loader2, CheckCircle, XCircle, Shield, TrendingUp, BookOpen
 } from "lucide-react";
+import { Link } from "wouter";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 
@@ -57,6 +58,16 @@ export default function AdminDashboard() {
         <div className="mb-6">
           <h1 className="text-2xl font-heading font-bold">{t("dashboard.admin")}</h1>
           <p className="text-muted-foreground mt-1">{lang === "ar" ? "إدارة المنصة" : "Platform Management"}</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex gap-2 mb-6">
+          <Link href="/admin/knowledge-base">
+            <Button variant="outline" className="gap-2">
+              <BookOpen className="h-4 w-4" />
+              {lang === "ar" ? "قاعدة المعرفة" : "Knowledge Base"}
+            </Button>
+          </Link>
         </div>
 
         {/* Stats */}

@@ -308,3 +308,48 @@ export const knowledgeBase = mysqlTable("knowledgeBase", {
 
 export type KnowledgeBase = typeof knowledgeBase.$inferSelect;
 export type InsertKnowledgeBase = typeof knowledgeBase.$inferInsert;
+
+
+// ─── User Activity Tracking ─────────────────────────────────────────
+export const userActivities = mysqlTable("userActivities", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  action: varchar("action", { length: 50 }).notNull(), // page_view, search, favorite, booking, login, register, property_view, message_sent
+  page: varchar("page", { length: 255 }),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  sessionId: varchar("sessionId", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserActivity = typeof userActivities.$inferSelect;
+export type InsertUserActivity = typeof userActivities.$inferInsert;
+
+// ─── Admin Permissions ──────────────────────────────────────────────
+export const adminPermissions = mysqlTable("adminPermissions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  permissions: json("permissions").$type<string[]>().notNull(),
+  isRootAdmin: boolean("isRootAdmin").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AdminPermission = typeof adminPermissions.$inferSelect;
+export type InsertAdminPermission = typeof adminPermissions.$inferInsert;
+
+// ─── Saudi Districts ────────────────────────────────────────────────
+export const districts = mysqlTable("districts", {
+  id: int("id").autoincrement().primaryKey(),
+  city: varchar("city", { length: 100 }).notNull(),
+  cityAr: varchar("cityAr", { length: 100 }).notNull(),
+  nameEn: varchar("nameEn", { length: 100 }).notNull(),
+  nameAr: varchar("nameAr", { length: 100 }).notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  isActive: boolean("isActive").default(true),
+});
+
+export type District = typeof districts.$inferSelect;
+export type InsertDistrict = typeof districts.$inferInsert;

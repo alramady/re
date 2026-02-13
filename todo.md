@@ -143,3 +143,73 @@
 - [x] Conversation management (new, list, continue)
 - [ ] Response rating system (1-5 stars)
 - [ ] Admin knowledge base management page
+
+## Knowledge Base Management Page (Admin)
+- [x] tRPC endpoints for KB CRUD (list, create, update, delete articles)
+- [x] Admin-only access control on all KB management endpoints
+- [x] KB Management page UI with article list table
+- [x] Create/Edit article dialog with title (AR/EN), content (AR/EN), category, tags
+- [x] Delete article with confirmation dialog
+- [x] Search and filter articles by category/title
+- [x] Route registered in App.tsx
+- [x] Link added to Admin Dashboard navigation
+- [ ] Article status toggle (published/draft)
+
+## Comprehensive Admin CMS (Full Site Control)
+- [x] Platform settings DB table with key-value pairs for all site config
+- [x] Seed default settings (site name, logo, hero text, stats, colors, fees, etc.)
+- [x] tRPC endpoints: getSettings (public), updateSettings (admin), uploadAsset (admin)
+- [x] SiteSettingsProvider React context — loads all settings, provides to all pages
+- [x] Admin CMS Page — Site Identity (name AR/EN, logo upload, favicon, description)
+- [x] Admin CMS Page — Hero Section (title AR/EN, subtitle AR/EN, background image)
+- [x] Admin CMS Page — Stats Section (editable numbers and labels)
+- [x] Admin CMS Page — Platform Fees (service fee %, VAT, min/max rent, deposit rules)
+- [x] Admin CMS Page — Footer Content (about text, contact info, social links)
+- [x] Admin CMS Page — Terms & Conditions / Privacy Policy (AR/EN)
+- [x] Admin CMS Page — Knowledge Base CRUD (articles, FAQs)
+- [x] Update Navbar to use dynamic site name + logo from settings
+- [x] Update Home page hero to use dynamic content from settings
+- [x] Update Home page stats to use dynamic numbers from settings
+- [x] Update Footer to use dynamic content from settings
+- [ ] Admin CMS Page — Featured Cities (add/remove/reorder cities)
+- [ ] Update BookingFlow to use dynamic service fee from settings
+
+## User Activity Tracking & Analytics
+- [x] userActivities DB table (userId, action, page, metadata, ip, timestamp)
+- [x] Track user page views, searches, favorites, bookings (endpoints ready)
+- [x] Activity stats endpoint (totalActions, uniqueUsers, topActions)
+- [x] Activity log with filters (by user, by action, with pagination)
+- [x] User preferences analysis (search patterns, viewed properties)
+- [ ] Admin analytics dashboard with charts UI
+- [ ] Export analytics data
+
+## Saudi City Districts (Complete)
+- [x] Districts data for Riyadh (50+ districts seeded)
+- [x] Districts data for Jeddah (50+ districts seeded)
+- [x] Districts data for Madinah (50+ districts seeded)
+- [x] Integrate districts into search filters
+- [x] Bilingual district names (AR/EN)
+- [x] Admin CRUD endpoints for districts
+- [ ] Districts data for Makkah, Dammam, Khobar, Tabuk, Abha
+
+## Admin Roles & Permissions
+- [x] adminPermissions DB table (userId, permissions JSON, isRootAdmin)
+- [x] Permission types: manage_users, manage_properties, manage_bookings, manage_settings, manage_kb, view_analytics
+- [x] Admin permissions management endpoints (list, get, set, delete)
+- [x] Root admin protection (cannot be modified/deleted)
+- [ ] Admin permissions management UI page
+- [ ] Permission checks on individual admin endpoints
+
+## Translation Fixes (100% Correct)
+- [ ] Audit all Arabic translations — ensure 100% Arabic with no English
+- [ ] Audit all English translations — ensure 100% English with no Arabic
+- [ ] Fix any mixed-language issues in UI components
+- [ ] Verify RTL layout consistency across all pages
+
+## CMS Tests
+- [x] Districts API tests (3 tests)
+- [x] Site Settings API tests (5 tests)
+- [x] User Activity API tests (3 tests)
+- [x] Admin Permissions API tests (2 tests)
+- [x] Public Settings API test (1 test)
+- [x] All 117 tests passing (4 test files)

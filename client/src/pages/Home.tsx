@@ -1,5 +1,6 @@
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
@@ -16,6 +17,7 @@ import { useLocation } from "wouter";
 
 export default function Home() {
   const { t, lang, dir } = useI18n();
+  const { get: s, getByLang: sl } = useSiteSettings();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -41,10 +43,10 @@ export default function Home() {
   ];
 
   const stats = [
-    { value: "500+", labelAr: "عقار متاح", labelEn: "Properties Available" },
-    { value: "1000+", labelAr: "مستأجر سعيد", labelEn: "Happy Tenants" },
-    { value: "50+", labelAr: "مدينة", labelEn: "Cities" },
-    { value: "98%", labelAr: "رضا العملاء", labelEn: "Satisfaction Rate" },
+    { value: s("stats.properties", "500+"), labelAr: s("stats.propertiesLabelAr", "عقار متاح"), labelEn: s("stats.propertiesLabelEn", "Properties Available") },
+    { value: s("stats.tenants", "1000+"), labelAr: s("stats.tenantsLabelAr", "مستأجر سعيد"), labelEn: s("stats.tenantsLabelEn", "Happy Tenants") },
+    { value: s("stats.cities", "50+"), labelAr: s("stats.citiesLabelAr", "مدينة"), labelEn: s("stats.citiesLabelEn", "Cities") },
+    { value: s("stats.satisfaction", "98%"), labelAr: s("stats.satisfactionLabelAr", "رضا العملاء"), labelEn: s("stats.satisfactionLabelEn", "Satisfaction Rate") },
   ];
 
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
@@ -59,10 +61,10 @@ export default function Home() {
         <div className="container relative py-20 md:py-28">
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="text-3xl md:text-5xl font-heading font-bold mb-6 leading-tight">
-              {t("hero.title")}
+              {sl("hero.title", lang) || t("hero.title")}
             </h1>
             <p className="text-lg md:text-xl text-white/80 mb-8 leading-relaxed">
-              {t("hero.subtitle")}
+              {sl("hero.subtitle", lang) || t("hero.subtitle")}
             </p>
 
             {/* Search bar */}

@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
+import { SiteSettingsProvider } from "./contexts/SiteSettingsContext";
 import { lazy, Suspense } from "react";
 import AiAssistant from "./components/AiAssistant";
 import { Loader2 } from "lucide-react";
@@ -25,6 +26,8 @@ const Messages = lazy(() => import("./pages/Messages"));
 const BookingFlow = lazy(() => import("./pages/BookingFlow"));
 const MaintenanceRequest = lazy(() => import("./pages/MaintenanceRequest"));
 const LeaseContract = lazy(() => import("./pages/LeaseContract"));
+const KnowledgeBase = lazy(() => import("./pages/KnowledgeBase"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 
 function PageLoader() {
   return (
@@ -53,6 +56,8 @@ function Router() {
         <Route path="/book/:propertyId" component={BookingFlow} />
         <Route path="/maintenance/new/:bookingId" component={MaintenanceRequest} />
         <Route path="/lease/:bookingId" component={LeaseContract} />
+        <Route path="/admin/knowledge-base" component={KnowledgeBase} />
+        <Route path="/admin/settings" component={AdminSettings} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
@@ -65,11 +70,13 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <I18nProvider>
+          <SiteSettingsProvider>
           <TooltipProvider>
             <Toaster />
             <Router />
             <AiAssistant />
           </TooltipProvider>
+          </SiteSettingsProvider>
         </I18nProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -29,6 +29,13 @@
       "when": 1771019404113,
       "tag": "0003_sweet_triton",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1771025153047,
+      "tag": "0004_premium_imperial_guard",
+      "breakpoints": true
     }
   ]
 }

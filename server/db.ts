@@ -10,6 +10,7 @@ import {
   favorites, reviews, notifications, savedSearches,
   propertyAvailability, platformSettings,
   aiConversations, aiMessages, knowledgeBase, InsertKnowledgeBase,
+  userActivities, InsertUserActivity, adminPermissions, InsertAdminPermission, districts, InsertDistrict,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -484,6 +485,26 @@ export async function setSetting(key: string, value: string) {
     .onDuplicateKeyUpdate({ set: { settingValue: value } });
 }
 
+export async function getAllSettings(): Promise<Record<string, string>> {
+  const db = await getDb();
+  if (!db) return {};
+  const rows = await db.select().from(platformSettings);
+  const result: Record<string, string> = {};
+  for (const row of rows) {
+    result[row.settingKey] = row.settingValue ?? "";
+  }
+  return result;
+}
+
+export async function bulkSetSettings(settings: Record<string, string>) {
+  const db = await getDb();
+  if (!db) return;
+  for (const [key, value] of Object.entries(settings)) {
+    await db.insert(platformSettings).values({ settingKey: key, settingValue: value })
+      .onDuplicateKeyUpdate({ set: { settingValue: value } });
+  }
+}
+
 // ─── Local Auth ─────────────────────────────────────────────────────
 export async function getUserByUserId(userId: string) {
   const db = await getDb();
@@ -632,4 +653,140 @@ export async function searchKnowledgeBase(query: string) {
         like(knowledgeBase.contentAr, q),
       )
     ));
+}
+
+
+// ─── User Activity Tracking ─────────────────────────────────────────
+export async function trackActivity(data: InsertUserActivity) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(userActivities).values(data);
+}
+
+export async function getActivityLog(filters?: { userId?: number; action?: string; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [];
+  if (filters?.userId) conditions.push(eq(userActivities.userId, filters.userId));
+  if (filters?.action) conditions.push(eq(userActivities.action, filters.action));
+  const query = db.select().from(userActivities).orderBy(desc(userActivities.createdAt));
+  if (conditions.length > 0) query.where(and(...conditions));
+  if (filters?.limit) query.limit(filters.limit);
+  if (filters?.offset) query.offset(filters.offset);
+  return query;
+}
+
+export async function getActivityStats() {
+  const db = await getDb();
+  if (!db) return { totalActions: 0, uniqueUsers: 0, topActions: [], recentActivity: [] };
+  
+  const totalActions = await db.select({ count: sql<number>`COUNT(*)` }).from(userActivities);
+  const uniqueUsers = await db.select({ count: sql<number>`COUNT(DISTINCT userId)` }).from(userActivities);
+  const topActions = await db.select({
+    action: userActivities.action,
+    count: sql<number>`COUNT(*) as cnt`,
+  }).from(userActivities).groupBy(userActivities.action).orderBy(sql`cnt DESC`).limit(10);
+  
+  const recentActivity = await db.select().from(userActivities).orderBy(desc(userActivities.createdAt)).limit(20);
+  
+  return {
+    totalActions: totalActions[0]?.count ?? 0,
+    uniqueUsers: uniqueUsers[0]?.count ?? 0,
+    topActions,
+    recentActivity,
+  };
+}
+
+export async function getUserPreferences(userId: number) {
+  const db = await getDb();
+  if (!db) return { searches: [], viewedProperties: [], favoriteTypes: [] };
+  
+  const searches = await db.select({ metadata: userActivities.metadata })
+    .from(userActivities)
+    .where(and(eq(userActivities.userId, userId), eq(userActivities.action, "search")))
+    .orderBy(desc(userActivities.createdAt)).limit(20);
+  
+  const viewedProperties = await db.select({ metadata: userActivities.metadata })
+    .from(userActivities)
+    .where(and(eq(userActivities.userId, userId), eq(userActivities.action, "property_view")))
+    .orderBy(desc(userActivities.createdAt)).limit(20);
+  
+  return { searches, viewedProperties, favoriteTypes: [] };
+}
+
+// ─── Admin Permissions ──────────────────────────────────────────────
+export async function getAdminPermissions(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(adminPermissions).where(eq(adminPermissions.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function setAdminPermissions(userId: number, perms: string[], isRoot = false) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(adminPermissions).values({ userId, permissions: perms, isRootAdmin: isRoot })
+    .onDuplicateKeyUpdate({ set: { permissions: perms } });
+}
+
+export async function getAllAdminPermissions() {
+  const db = await getDb();
+  if (!db) return [];
+  const admins = await db.select().from(users).where(eq(users.role, "admin"));
+  const perms = await db.select().from(adminPermissions);
+  const permsMap = new Map(perms.map(p => [p.userId, p]));
+  return admins.map(a => ({
+    ...a,
+    permissions: permsMap.get(a.id)?.permissions ?? [],
+    isRootAdmin: permsMap.get(a.id)?.isRootAdmin ?? false,
+  }));
+}
+
+export async function deleteAdminPermissions(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(adminPermissions).where(eq(adminPermissions.userId, userId));
+}
+
+// ─── Districts ──────────────────────────────────────────────────────
+export async function getAllDistricts() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(districts).where(eq(districts.isActive, true)).orderBy(districts.city, districts.nameEn);
+}
+
+export async function getDistrictsByCity(city: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(districts).where(and(eq(districts.city, city), eq(districts.isActive, true))).orderBy(districts.nameEn);
+}
+
+export async function createDistrict(data: InsertDistrict) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.insert(districts).values(data);
+  return result[0].insertId;
+}
+
+export async function bulkCreateDistricts(data: InsertDistrict[]) {
+  const db = await getDb();
+  if (!db) return;
+  // Insert in batches of 50
+  for (let i = 0; i < data.length; i += 50) {
+    const batch = data.slice(i, i + 50);
+    await db.insert(districts).values(batch);
+  }
+}
+
+export async function deleteDistrictsByCity(city: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(districts).where(eq(districts.city, city));
+}
+
+export async function getDistrictCount() {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select({ count: sql<number>`COUNT(*)` }).from(districts);
+  return result[0]?.count ?? 0;
 }

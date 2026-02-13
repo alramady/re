@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
-import { getLoginUrl } from "@/const";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ import { Link, useLocation } from "wouter";
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { t, lang, toggleLang } = useI18n();
+  const { get: s } = useSiteSettings();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -47,11 +48,15 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg gradient-saudi flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
+            {s("site.logoUrl") ? (
+              <img src={s("site.logoUrl")} alt="Logo" className="h-9 w-9 rounded-lg object-contain" />
+            ) : (
+              <div className="w-9 h-9 rounded-lg gradient-saudi flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-white" />
+              </div>
+            )}
             <span className="text-xl font-bold font-heading text-primary">
-              {lang === "ar" ? "إيجار" : "Ijar"}
+              {lang === "ar" ? (s("site.nameAr") || "إيجار") : (s("site.nameEn") || "Ijar")}
             </span>
           </Link>
 

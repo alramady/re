@@ -603,6 +603,83 @@ export const appRouter = router({
       }),
   }),
 
+  // ─── Site Settings (CMS) ─────────────────────────────────────────
+  siteSettings: router({
+    getAll: publicProcedure.query(async () => {
+      return db.getAllSettings();
+    }),
+    get: publicProcedure
+      .input(z.object({ key: z.string() }))
+      .query(async ({ input }) => {
+        return { value: await db.getSetting(input.key) };
+      }),
+    update: adminProcedure
+      .input(z.object({ settings: z.record(z.string(), z.string()) }))
+      .mutation(async ({ input }) => {
+        await db.bulkSetSettings(input.settings);
+        return { success: true };
+      }),
+    uploadAsset: adminProcedure
+      .input(z.object({ base64: z.string(), filename: z.string(), contentType: z.string(), purpose: z.string() }))
+      .mutation(async ({ input }) => {
+        const ext = input.filename.split('.').pop() || 'png';
+        const key = `site-assets/${input.purpose}-${nanoid()}.${ext}`;
+        const buffer = Buffer.from(input.base64, 'base64');
+        const { url } = await storagePut(key, buffer, input.contentType);
+        await db.setSetting(input.purpose, url);
+        return { url };
+      }),
+    seed: adminProcedure.mutation(async () => {
+      const defaults: Record<string, string> = {
+        "site.nameAr": "إيجار",
+        "site.nameEn": "Ijar",
+        "site.descriptionAr": "منصة إيجار تربط المستأجرين بأفضل العقارات للإيجار الشهري في المملكة العربية السعودية",
+        "site.descriptionEn": "Ijar connects tenants with the best monthly rental properties across Saudi Arabia",
+        "site.logoUrl": "",
+        "site.faviconUrl": "",
+        "site.primaryColor": "#15803d",
+        "site.accentColor": "#c8a45c",
+        "hero.titleAr": "ابحث عن سكنك الشهري المثالي",
+        "hero.titleEn": "Find Your Perfect Monthly Rental",
+        "hero.subtitleAr": "منصة إيجار تربط المستأجرين بأفضل العقارات للإيجار الشهري في المملكة العربية السعودية",
+        "hero.subtitleEn": "Ijar connects tenants with the best monthly rental properties across Saudi Arabia",
+        "hero.bgImage": "",
+        "stats.properties": "500",
+        "stats.propertiesLabelAr": "عقار متاح",
+        "stats.propertiesLabelEn": "Available Properties",
+        "stats.tenants": "1000",
+        "stats.tenantsLabelAr": "مستأجر سعيد",
+        "stats.tenantsLabelEn": "Happy Tenants",
+        "stats.cities": "50",
+        "stats.citiesLabelAr": "مدينة",
+        "stats.citiesLabelEn": "Cities",
+        "stats.satisfaction": "98",
+        "stats.satisfactionLabelAr": "رضا العملاء",
+        "stats.satisfactionLabelEn": "Customer Satisfaction",
+        "fees.serviceFeePercent": "5",
+        "fees.minRent": "500",
+        "fees.maxRent": "100000",
+        "fees.depositMonths": "2",
+        "fees.vatPercent": "15",
+        "footer.aboutAr": "منصة إيجار هي المنصة الرائدة للإيجار الشهري في المملكة العربية السعودية",
+        "footer.aboutEn": "Ijar is the leading monthly rental platform in Saudi Arabia",
+        "footer.email": "info@ijar.sa",
+        "footer.phone": "+966500000000",
+        "footer.addressAr": "الرياض، المملكة العربية السعودية",
+        "footer.addressEn": "Riyadh, Saudi Arabia",
+        "footer.twitter": "",
+        "footer.instagram": "",
+        "footer.linkedin": "",
+        "terms.contentAr": "",
+        "terms.contentEn": "",
+        "privacy.contentAr": "",
+        "privacy.contentEn": "",
+      };
+      await db.bulkSetSettings(defaults);
+      return { success: true };
+    }),
+  }),
+
   // ─── AI Assistant ────────────────────────────────────────────────
   ai: router({
     // Create or get conversations
@@ -732,6 +809,142 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const { html, data } = await generateLeaseContractHTML(input.bookingId);
         return { html, contractNumber: data.contractNumber };
+      }),
+  }),
+
+  // ─── User Activity Tracking ────────────────────────────────────
+  activity: router({
+    track: publicProcedure
+      .input(z.object({
+        action: z.string(),
+        page: z.string().optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.trackActivity({
+          userId: ctx.user?.id ?? null,
+          action: input.action,
+          page: input.page,
+          metadata: input.metadata as Record<string, unknown>,
+          ipAddress: ctx.req.ip || ctx.req.headers['x-forwarded-for']?.toString() || null,
+          userAgent: ctx.req.headers['user-agent'] || null,
+          sessionId: null,
+        });
+        return { success: true };
+      }),
+
+    stats: adminProcedure.query(async () => {
+      return db.getActivityStats();
+    }),
+
+    log: adminProcedure
+      .input(z.object({
+        userId: z.number().optional(),
+        action: z.string().optional(),
+        limit: z.number().optional(),
+        offset: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return db.getActivityLog(input ?? undefined);
+      }),
+
+    userPreferences: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getUserPreferences(input.userId);
+      }),
+  }),
+
+  // ─── Admin Permissions ────────────────────────────────────────────
+  permissions: router({
+    list: adminProcedure.query(async () => {
+      return db.getAllAdminPermissions();
+    }),
+
+    get: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getAdminPermissions(input.userId);
+      }),
+
+    set: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        permissions: z.array(z.string()),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Check if target is root admin - cannot modify
+        const existing = await db.getAdminPermissions(input.userId);
+        if (existing?.isRootAdmin) {
+          throw new Error("Cannot modify root admin permissions");
+        }
+        await db.setAdminPermissions(input.userId, input.permissions);
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input }) => {
+        const existing = await db.getAdminPermissions(input.userId);
+        if (existing?.isRootAdmin) {
+          throw new Error("Cannot delete root admin");
+        }
+        await db.deleteAdminPermissions(input.userId);
+        return { success: true };
+      }),
+  }),
+
+  // ─── Districts ────────────────────────────────────────────────────
+  districts: router({
+    all: publicProcedure.query(async () => {
+      return db.getAllDistricts();
+    }),
+
+    byCity: publicProcedure
+      .input(z.object({ city: z.string() }))
+      .query(async ({ input }) => {
+        return db.getDistrictsByCity(input.city);
+      }),
+
+    count: publicProcedure.query(async () => {
+      return { count: await db.getDistrictCount() };
+    }),
+
+    create: adminProcedure
+      .input(z.object({
+        city: z.string(),
+        cityAr: z.string(),
+        nameEn: z.string(),
+        nameAr: z.string(),
+        latitude: z.string().optional(),
+        longitude: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const id = await db.createDistrict(input);
+        return { id };
+      }),
+
+    bulkCreate: adminProcedure
+      .input(z.object({
+        districts: z.array(z.object({
+          city: z.string(),
+          cityAr: z.string(),
+          nameEn: z.string(),
+          nameAr: z.string(),
+          latitude: z.string().optional(),
+          longitude: z.string().optional(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        await db.bulkCreateDistricts(input.districts);
+        return { success: true, count: input.districts.length };
+      }),
+
+    deleteByCity: adminProcedure
+      .input(z.object({ city: z.string() }))
+      .mutation(async ({ input }) => {
+        await db.deleteDistrictsByCity(input.city);
+        return { success: true };
       }),
   }),
 

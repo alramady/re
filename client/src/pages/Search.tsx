@@ -10,12 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Search as SearchIcon, SlidersHorizontal, Grid3X3, List, MapPin, X, Building2 } from "lucide-react";
+import { Search as SearchIcon, SlidersHorizontal, Grid3X3, List, MapPin, X, Building2, Navigation } from "lucide-react";
 import { useState, useMemo } from "react";
 
 export default function Search() {
   const { t, lang } = useI18n();
   const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
@@ -24,6 +25,22 @@ export default function Search() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(true);
   const [page, setPage] = useState(0);
+
+  // Load districts from DB
+  const districtsQuery = trpc.districts.all.useQuery();
+  const cities = useMemo(() => {
+    if (!districtsQuery.data) return [];
+    const cityMap = new Map<string, { city: string; cityAr: string }>();
+    (districtsQuery.data as any[]).forEach((d: any) => {
+      if (!cityMap.has(d.city)) cityMap.set(d.city, { city: d.city, cityAr: d.cityAr });
+    });
+    return Array.from(cityMap.values()).sort((a, b) => a.city.localeCompare(b.city));
+  }, [districtsQuery.data]);
+
+  const districtsForCity = useMemo(() => {
+    if (!districtsQuery.data || !city) return [];
+    return (districtsQuery.data as any[]).filter((d: any) => d.city.toLowerCase() === city.toLowerCase());
+  }, [districtsQuery.data, city]);
 
   const searchInput = useMemo(() => ({
     city: city || undefined,
@@ -49,11 +66,11 @@ export default function Search() {
   ];
 
   const clearFilters = () => {
-    setCity(""); setPropertyType(""); setMinPrice(undefined); setMaxPrice(undefined);
+    setCity(""); setDistrict(""); setPropertyType(""); setMinPrice(undefined); setMaxPrice(undefined);
     setBedrooms(undefined); setFurnishedLevel(""); setPage(0);
   };
 
-  const hasFilters = city || propertyType || minPrice || maxPrice || bedrooms || furnishedLevel;
+  const hasFilters = city || district || propertyType || minPrice || maxPrice || bedrooms || furnishedLevel;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -120,12 +137,40 @@ export default function Search() {
                 {/* City */}
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">{t("search.city")}</label>
-                  <Input
-                    placeholder={t("search.city")}
-                    value={city}
-                    onChange={(e) => { setCity(e.target.value); setPage(0); }}
-                  />
+                  <Select value={city} onValueChange={(v) => { setCity(v); setDistrict(""); setPage(0); }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("search.city")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map(c => (
+                        <SelectItem key={c.city} value={c.city.toLowerCase()}>
+                          {lang === "ar" ? c.cityAr : c.city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {/* District */}
+                {city && districtsForCity.length > 0 && (
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">
+                      {lang === "ar" ? "الحي" : "District"}
+                    </label>
+                    <Select value={district} onValueChange={(v) => { setDistrict(v); setPage(0); }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={lang === "ar" ? "اختر الحي" : "Select district"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {districtsForCity.map((d: any) => (
+                          <SelectItem key={d.id} value={d.nameEn.toLowerCase()}>
+                            {lang === "ar" ? d.nameAr : d.nameEn}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* Property Type */}
                 <div>
