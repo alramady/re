@@ -15,6 +15,13 @@
       "when": 1771016918027,
       "tag": "0001_careful_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1771018427453,
+      "tag": "0002_wet_swordsman",
+      "breakpoints": true
     }
   ]
 }

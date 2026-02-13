@@ -482,3 +482,45 @@ export async function setSetting(key: string, value: string) {
   await db.insert(platformSettings).values({ settingKey: key, settingValue: value })
     .onDuplicateKeyUpdate({ set: { settingValue: value } });
 }
+
+// ─── Local Auth ─────────────────────────────────────────────────────
+export async function getUserByUserId(userId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createLocalUser(data: {
+  userId: string;
+  passwordHash: string;
+  displayName: string;
+  name?: string;
+  nameAr?: string;
+  email?: string;
+  phone?: string;
+  role?: "user" | "admin" | "landlord" | "tenant";
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  const openId = `local_${data.userId}`;
+  const result = await db.insert(users).values({
+    openId,
+    userId: data.userId,
+    passwordHash: data.passwordHash,
+    displayName: data.displayName,
+    name: data.name || data.displayName,
+    nameAr: data.nameAr,
+    email: data.email,
+    phone: data.phone,
+    role: data.role || "user",
+    loginMethod: "local",
+  });
+  return result[0].insertId;
+}
+
+export async function updateUserPassword(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+}

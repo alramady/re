@@ -5,33 +5,55 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
+
+// Eager load critical pages
 import Home from "./pages/Home";
-import Search from "./pages/Search";
-import PropertyDetail from "./pages/PropertyDetail";
-import CreateProperty from "./pages/CreateProperty";
-import TenantDashboard from "./pages/TenantDashboard";
-import LandlordDashboard from "./pages/LandlordDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import Messages from "./pages/Messages";
-import BookingFlow from "./pages/BookingFlow";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+// Lazy load other pages
+const Search = lazy(() => import("./pages/Search"));
+const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const CreateProperty = lazy(() => import("./pages/CreateProperty"));
+const TenantDashboard = lazy(() => import("./pages/TenantDashboard"));
+const LandlordDashboard = lazy(() => import("./pages/LandlordDashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Messages = lazy(() => import("./pages/Messages"));
+const BookingFlow = lazy(() => import("./pages/BookingFlow"));
+const MaintenanceRequest = lazy(() => import("./pages/MaintenanceRequest"));
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-green-700" />
+    </div>
+  );
+}
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/search" component={Search} />
-      <Route path="/property/:id" component={PropertyDetail} />
-      <Route path="/list-property" component={CreateProperty} />
-      <Route path="/edit-property/:id" component={CreateProperty} />
-      <Route path="/tenant" component={TenantDashboard} />
-      <Route path="/landlord" component={LandlordDashboard} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/messages" component={Messages} />
-      <Route path="/messages/:id" component={Messages} />
-      <Route path="/book/:propertyId" component={BookingFlow} />
-      <Route path="/404" component={NotFound} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<PageLoader />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/search" component={Search} />
+        <Route path="/property/:id" component={PropertyDetail} />
+        <Route path="/list-property" component={CreateProperty} />
+        <Route path="/edit-property/:id" component={CreateProperty} />
+        <Route path="/tenant" component={TenantDashboard} />
+        <Route path="/landlord" component={LandlordDashboard} />
+        <Route path="/admin" component={AdminDashboard} />
+        <Route path="/messages" component={Messages} />
+        <Route path="/messages/:id" component={Messages} />
+        <Route path="/book/:propertyId" component={BookingFlow} />
+        <Route path="/maintenance/new/:bookingId" component={MaintenanceRequest} />
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

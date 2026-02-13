@@ -85,3 +85,27 @@
 - [x] Navbar with all navigation links
 - [x] Language toggle (AR/EN)
 - [x] User profile dropdown
+
+## Integration Tests (Real DB)
+- [x] Real integration tests connecting to actual database (78 tests)
+- [x] Test property CRUD lifecycle (create → read → update → delete)
+- [x] Test booking lifecycle (create → approve → complete)
+- [x] Test messaging lifecycle (create conversation → send messages → read)
+- [x] Test maintenance request lifecycle (create → acknowledge → complete)
+- [x] Test favorites (add → check → remove)
+- [x] Test notifications (create → read → mark read)
+- [x] Test user profile update
+- [x] Test admin operations (stats, user management, property approval)
+- [x] Test reviews and saved searches
+
+## Local Authentication System
+- [x] Remove Manus OAuth completely
+- [x] Add userId/passwordHash columns to users table with bcrypt
+- [x] Build login API endpoint (/api/auth/login with JWT cookie session)
+- [x] Build register API endpoint (/api/auth/register)
+- [x] Build login page UI (Arabic/English)
+- [x] Build register page UI (Arabic/English)
+- [x] Update useAuth hook for local auth
+- [x] Seed admin account (Hobart / 15001500)
+- [x] Update Navbar with login/register links
+- [x] All 103 tests passing (78 integration + 24 unit + 1 auth)

@@ -154,10 +154,19 @@ export default function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button size="sm" onClick={() => window.location.href = getLoginUrl()}>
-                <User className="h-4 w-4 me-1.5" />
-                {t("nav.login")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Link href="/login">
+                  <Button size="sm" variant="outline">
+                    <User className="h-4 w-4 me-1.5" />
+                    {t("nav.login")}
+                  </Button>
+                </Link>
+                <Link href="/register" className="hidden md:block">
+                  <Button size="sm" className="gradient-saudi text-white border-0">
+                    {t("auth.register")}
+                  </Button>
+                </Link>
+              </div>
             )}
 
             {/* Mobile menu toggle */}
