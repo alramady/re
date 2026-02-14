@@ -296,3 +296,10 @@
 - [x] Fix mobile layout issues across all pages (Navbar, Home, Cards, Footer)
 - [x] Ensure RTL font rendering is clean on mobile
 - [x] Test on mobile viewport and all 148 tests passing
+
+## Railway Deployment
+- [ ] Export code to GitHub repository (alramady/re)
+- [ ] Add Dockerfile for production build
+- [ ] Add railway.toml configuration
+- [ ] Document required environment variables
+- [ ] Push to GitHub
