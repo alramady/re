@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 interface LocalAdminInfo {
   id: number;
   username: string;
+  name: string;
   displayName: string;
   email: string | null;
   phone: string | null;
@@ -20,16 +21,17 @@ interface LocalAuthState {
 
 const LOCAL_AUTH_KEY = 'rased_local_auth';
 
-// Hardcoded admin accounts
+// Hardcoded admin accounts - Local only authentication
 const ADMIN_ACCOUNTS: Record<string, { password: string; info: LocalAdminInfo }> = {
   'MRUHAILY': {
     password: '15001500',
     info: {
       id: 1,
       username: 'MRUHAILY',
-      displayName: 'Muhammed ALRuhaily',
-      email: 'mruhaily@ndmo.gov.sa',
-      phone: null,
+      name: 'Muhammed ALRuhaily',
+      displayName: 'Admin Rasid System',
+      email: 'prog.muhammed@gmail.com',
+      phone: '+966553445533',
       role: 'root',
       avatar: null,
     }
@@ -39,7 +41,8 @@ const ADMIN_ACCOUNTS: Record<string, { password: string; info: LocalAdminInfo }>
     info: {
       id: 2,
       username: 'aalrebdi',
-      displayName: 'Abdullah ALRebdi',
+      name: 'Alrebdi Fahad Alrebdi',
+      displayName: "NDMO's president/director",
       email: 'aalrebdi@ndmo.gov.sa',
       phone: null,
       role: 'system_admin',
@@ -51,9 +54,10 @@ const ADMIN_ACCOUNTS: Record<string, { password: string; info: LocalAdminInfo }>
     info: {
       id: 3,
       username: 'msarhan',
-      displayName: 'Mohammed Sarhan',
-      email: 'msarhan@ndmo.gov.sa',
-      phone: null,
+      name: 'Mashal Abdullah Alsarhan',
+      displayName: 'Vice President of NDMO',
+      email: 'msarhan@nic.gov.sa',
+      phone: '055 511 3675',
       role: 'system_admin',
       avatar: null,
     }
@@ -63,9 +67,10 @@ const ADMIN_ACCOUNTS: Record<string, { password: string; info: LocalAdminInfo }>
     info: {
       id: 4,
       username: 'malmoutaz',
-      displayName: 'Mohammed ALMoutaz',
+      name: 'Manal Mohammed Almoutaz',
+      displayName: 'Manager of Smart Rasid Platform',
       email: 'malmoutaz@ndmo.gov.sa',
-      phone: null,
+      phone: '0542087872',
       role: 'system_admin',
       avatar: null,
     }

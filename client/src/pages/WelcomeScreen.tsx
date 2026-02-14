@@ -115,7 +115,7 @@ export default function WelcomeScreen() {
                 className="flex items-center gap-2 mt-4 text-[11px] text-white/30"
               >
                 <Shield className="w-3.5 h-3.5 text-[#C5A55A]" />
-                <span>مرحباً {admin.displayName} · {admin.role === 'root' ? 'صلاحيات كاملة' : 'مدير نظام'}</span>
+                <span>مرحباً {admin.name} · {admin.displayName}</span>
               </motion.div>
             )}
           </motion.div>

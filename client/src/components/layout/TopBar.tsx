@@ -130,7 +130,7 @@ export default function TopBar() {
             <User className="w-4 h-4 text-white" />
           </div>
           {admin && (
-            <span className="text-xs font-medium text-[#0A192F]/60 dark:text-white/60 hidden lg:block">{admin.displayName?.split(' ')[0]}</span>
+            <span className="text-xs font-medium text-[#0A192F]/60 dark:text-white/60 hidden lg:block">{admin.name?.split(' ')[0]}</span>
           )}
         </button>
       </div>

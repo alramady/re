@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Shield, Calendar, Clock, Key, Edit, Camera } from 'lucide-react';
+import { User, Mail, Phone, Shield, Calendar, Clock, Key, Edit, Camera, Briefcase } from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
 import { useLocalAuth } from '@/contexts/LocalAuthContext';
 import { IMAGES } from '@/lib/images';
@@ -18,7 +18,7 @@ export default function ProfilePage() {
             <div className="relative">
               <img
                 src={IMAGES.charProfile}
-                alt={admin.displayName}
+                alt={admin.name}
                 className="w-24 h-24 rounded-2xl object-cover border-2 border-[#C5A55A]/30"
               />
               <button className="absolute bottom-0 left-0 w-8 h-8 rounded-full bg-[#C5A55A] flex items-center justify-center shadow-lg">
@@ -26,8 +26,8 @@ export default function ProfilePage() {
               </button>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-[#0A192F] dark:text-white">{admin.displayName}</h2>
-              <p className="text-sm text-[#C5A55A] mb-1">{admin.role === 'root' ? 'مدير تنفيذي - Root Admin' : 'مدير نظام - System Admin'}</p>
+              <h2 className="text-2xl font-bold text-[#0A192F] dark:text-white">{admin.name}</h2>
+              <p className="text-sm text-[#C5A55A] mb-1">{admin.displayName}</p>
               <p className="text-xs text-[#0A192F]/40 dark:text-white/40">@{admin.username}</p>
             </div>
             <div className="mr-auto">
@@ -51,6 +51,13 @@ export default function ProfilePage() {
                 <User className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
                 <div>
                   <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">الاسم الكامل</p>
+                  <p className="text-sm text-[#0A192F] dark:text-white">{admin.name}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
+                <Briefcase className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+                <div>
+                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">المسمى الوظيفي</p>
                   <p className="text-sm text-[#0A192F] dark:text-white">{admin.displayName}</p>
                 </div>
               </div>
@@ -59,6 +66,13 @@ export default function ProfilePage() {
                 <div>
                   <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">البريد الإلكتروني</p>
                   <p className="text-sm text-[#0A192F] dark:text-white">{admin.email || 'غير محدد'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
+                <Phone className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+                <div>
+                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">رقم الجوال</p>
+                  <p className="text-sm text-[#0A192F] dark:text-white" dir="ltr">{admin.phone || 'غير محدد'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">

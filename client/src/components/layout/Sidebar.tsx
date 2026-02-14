@@ -14,11 +14,11 @@ import { useTheme } from '@/contexts/ThemeContext';
 const LOGO_URL = IMAGES.logoMain;
 
 const teamMembers = [
-  { id: 'MRUHAILY', name: 'م. محمد الرحيلي', role: 'مدير النظام', status: 'online' as const, avatar: '👨‍💻', color: '#C5A55A' },
-  { id: 'aalrebdi', name: 'أ. عبدالله الربدي', role: 'محلل بيانات', status: 'online' as const, avatar: '👨‍💼', color: '#4CAF50' },
-  { id: 'msarhan', name: 'أ. محمد سرحان', role: 'مطور أنظمة', status: 'away' as const, avatar: '👨‍🔬', color: '#FF9800' },
-  { id: 'malmoutaz', name: 'أ. محمد المعتز', role: 'مراقب أمني', status: 'offline' as const, avatar: '🛡️', color: '#9E9E9E' },
-  { id: 'system', name: 'راصد الذكي', role: 'مساعد ذكي', status: 'online' as const, avatar: '🤖', color: '#2196F3' },
+  { id: 'MRUHAILY', name: 'Muhammed ALRuhaily', displayName: 'Admin Rasid System', role: 'Root & System Admin', status: 'online' as const, avatar: '👨‍💻', color: '#C5A55A' },
+  { id: 'aalrebdi', name: 'Alrebdi Fahad Alrebdi', displayName: "NDMO's president/director", role: 'System Admin', status: 'online' as const, avatar: '👨‍💼', color: '#4CAF50' },
+  { id: 'msarhan', name: 'Mashal Abdullah Alsarhan', displayName: 'Vice President of NDMO', role: 'System Admin', status: 'away' as const, avatar: '👨‍🔬', color: '#FF9800' },
+  { id: 'malmoutaz', name: 'Manal Mohammed Almoutaz', displayName: 'Manager of Smart Rasid Platform', role: 'System Admin', status: 'offline' as const, avatar: '🛡️', color: '#9E9E9E' },
+  { id: 'system', name: 'راصد الذكي', displayName: 'راصد الذكي', role: 'مساعد ذكي', status: 'online' as const, avatar: '🤖', color: '#2196F3' },
 ];
 
 const statusConfig = {
@@ -220,15 +220,15 @@ export default function Sidebar() {
             <div className="relative flex-shrink-0">
               <img
                 src={IMAGES.charStanding}
-                alt={admin.displayName}
+                alt={admin.name}
                 className="w-10 h-10 rounded-full object-cover border-2 border-[#C5A55A]/30"
               />
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#4CAF50] rounded-full border-2 border-[#0A192F]" />
             </div>
             {!sidebarCollapsed && (
               <div className="min-w-0">
-                <p className="text-xs font-medium text-white truncate">{admin.displayName}</p>
-                <p className="text-[10px] text-white/30 truncate">{admin.role === 'root' ? 'تنفيذي' : 'مدير نظام'}</p>
+                <p className="text-xs font-medium text-white truncate">{admin.name}</p>
+                <p className="text-[10px] text-[#C5A55A]/60 truncate">{admin.displayName}</p>
               </div>
             )}
           </div>
