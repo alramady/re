@@ -18,11 +18,11 @@ export default function QuickAnalyzePage() {
     <div className="h-full overflow-y-auto px-8 py-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3 mb-6">
-          <h2 className="text-xl font-bold text-[#0A192F] dark:text-white flex items-center gap-2">
-            <Zap className="w-6 h-6 text-[#C5A55A]" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Zap className="w-6 h-6 text-[#F2A44E]" />
             مختبر الأنماط
           </h2>
-          <span className="text-[10px] px-2 py-1 rounded-full bg-[#C5A55A]/10 text-[#C5A55A]">تحليل ذكي</span>
+          <span className="text-[10px] px-2 py-1 rounded-full bg-[#F2A44E]/10 text-[#F2A44E]">تحليل ذكي</span>
         </div>
 
         {/* Quick Stats */}
@@ -31,8 +31,8 @@ export default function QuickAnalyzePage() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center"><AlertTriangle className="w-5 h-5 text-red-500" /></div>
               <div>
-                <p className="text-2xl font-bold text-[#0A192F] dark:text-white">7</p>
-                <p className="text-xs text-[#0A192F]/40 dark:text-white/40">أنماط خطرة مكتشفة</p>
+                <p className="text-2xl font-bold text-white">7</p>
+                <p className="text-xs text-white/40">أنماط خطرة مكتشفة</p>
               </div>
             </div>
           </GlassCard>
@@ -40,8 +40,8 @@ export default function QuickAnalyzePage() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center"><Activity className="w-5 h-5 text-blue-500" /></div>
               <div>
-                <p className="text-2xl font-bold text-[#0A192F] dark:text-white">23</p>
-                <p className="text-xs text-[#0A192F]/40 dark:text-white/40">تحليل نشط</p>
+                <p className="text-2xl font-bold text-white">23</p>
+                <p className="text-xs text-white/40">تحليل نشط</p>
               </div>
             </div>
           </GlassCard>
@@ -49,8 +49,8 @@ export default function QuickAnalyzePage() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center"><Shield className="w-5 h-5 text-green-500" /></div>
               <div>
-                <p className="text-2xl font-bold text-[#0A192F] dark:text-white">89%</p>
-                <p className="text-xs text-[#0A192F]/40 dark:text-white/40">دقة التنبؤ</p>
+                <p className="text-2xl font-bold text-white">89%</p>
+                <p className="text-xs text-white/40">دقة التنبؤ</p>
               </div>
             </div>
           </GlassCard>
@@ -64,7 +64,7 @@ export default function QuickAnalyzePage() {
                 <div className="w-2 h-full min-h-[60px] rounded-full" style={{ background: severityColors[pattern.severity] }} />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-bold text-[#0A192F] dark:text-white">{pattern.title}</h3>
+                    <h3 className="text-sm font-bold text-white">{pattern.title}</h3>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ color: severityColors[pattern.severity], background: `${severityColors[pattern.severity]}15` }}>
                         ثقة {pattern.confidence}%
@@ -74,7 +74,7 @@ export default function QuickAnalyzePage() {
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs text-[#0A192F]/60 dark:text-white/60">{pattern.description}</p>
+                  <p className="text-xs text-white/60">{pattern.description}</p>
                 </div>
               </div>
             </GlassCard>

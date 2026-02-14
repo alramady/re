@@ -16,7 +16,7 @@ const typeConfig: Record<string, { label: string; color: string; icon: any }> = 
   incident: { label: 'حوادث', color: '#F97316', icon: TrendingUp },
   performance: { label: 'أداء', color: '#3B82F6', icon: PieChart },
   policy: { label: 'سياسات', color: '#8B5CF6', icon: FileText },
-  requests: { label: 'طلبات', color: '#C5A55A', icon: FileText },
+  requests: { label: 'طلبات', color: '#F2A44E', icon: FileText },
   risk: { label: 'مخاطر', color: '#EF4444', icon: TrendingUp },
 };
 
@@ -31,16 +31,16 @@ export default function ReportsPage() {
     <div className="h-full overflow-y-auto px-8 py-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#0A192F] dark:text-white flex items-center gap-2">
-            <FileText className="w-6 h-6 text-[#C5A55A]" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <FileText className="w-6 h-6 text-[#F2A44E]" />
             مركز التقارير
           </h2>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A192F]/5 hover:bg-[#0A192F]/8 text-[#0A192F]/60 text-xs transition-all dark:bg-white/5 dark:text-white/60">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/8 text-white/60 text-xs transition-all">
               <Filter className="w-3.5 h-3.5" />
               تصفية
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-[#0A192F] hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #C5A55A, #D4AF37)' }}>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #F2A44E, #D4AF37)' }}>
               <Plus className="w-4 h-4" />
               تقرير جديد
             </button>
@@ -63,18 +63,18 @@ export default function ReportsPage() {
                     {status.label}
                   </span>
                 </div>
-                <h3 className="text-sm font-bold text-[#0A192F] dark:text-white mb-2 group-hover:text-[#C5A55A] transition-colors line-clamp-2">{report.title}</h3>
-                <div className="flex items-center gap-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 mb-4">
+                <h3 className="text-sm font-bold text-white mb-2 group-hover:text-[#F2A44E] transition-colors line-clamp-2">{report.title}</h3>
+                <div className="flex items-center gap-3 text-[10px] text-white/40 mb-4">
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{report.date}</span>
                   <span>{report.pages} صفحة</span>
                   <span className="px-1.5 py-0.5 rounded-full" style={{ color: type.color, background: `${type.color}15` }}>{type.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#0A192F]/5 dark:bg-white/5 text-[#0A192F]/60 dark:text-white/60 text-xs hover:bg-[#0A192F]/8 dark:hover:bg-white/8 transition-colors">
+                  <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-white/60 text-xs hover:bg-white/8 transition-colors">
                     <Eye className="w-3.5 h-3.5" />
                     عرض
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#0A192F]/5 dark:bg-white/5 text-[#0A192F]/60 dark:text-white/60 text-xs hover:bg-[#0A192F]/8 dark:hover:bg-white/8 transition-colors">
+                  <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-white/60 text-xs hover:bg-white/8 transition-colors">
                     <Download className="w-3.5 h-3.5" />
                     تحميل
                   </button>

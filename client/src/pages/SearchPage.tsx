@@ -46,11 +46,11 @@ export default function SearchPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex-1 flex flex-col">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A192F] to-[#1a2744] flex items-center justify-center">
-            <Bot className="w-5 h-5 text-[#C5A55A]" />
+            <Bot className="w-5 h-5 text-[#F2A44E]" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#0A192F] dark:text-white">راصد الذكي</h2>
-            <p className="text-xs text-[#0A192F]/40 dark:text-white/40">مساعد ذكي لتحليل البيانات الوطنية</p>
+            <h2 className="text-xl font-bold text-white">راصد الذكي</h2>
+            <p className="text-xs text-white/40">مساعد ذكي لتحليل البيانات الوطنية</p>
           </div>
         </div>
 
@@ -63,11 +63,11 @@ export default function SearchPage() {
               animate={{ opacity: 1, y: 0 }}
               className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${msg.role === 'assistant' ? 'bg-gradient-to-br from-[#0A192F] to-[#1a2744]' : 'bg-[#C5A55A]/20'}`}>
-                {msg.role === 'assistant' ? <Bot className="w-4 h-4 text-[#C5A55A]" /> : <User className="w-4 h-4 text-[#C5A55A]" />}
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${msg.role === 'assistant' ? 'bg-gradient-to-br from-[#0A192F] to-[#1a2744]' : 'bg-[#F2A44E]/20'}`}>
+                {msg.role === 'assistant' ? <Bot className="w-4 h-4 text-[#F2A44E]" /> : <User className="w-4 h-4 text-[#F2A44E]" />}
               </div>
-              <div className={`max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'assistant' ? 'glass-card' : 'bg-[#0A192F] text-white dark:bg-[#C5A55A]/20 dark:text-white'}`}>
-                <p className={msg.role === 'assistant' ? 'text-[#0A192F] dark:text-white' : ''} style={{ whiteSpace: 'pre-line' }}>{msg.content}</p>
+              <div className={`max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'assistant' ? 'glass-card' : 'bg-[#0A192F] text-white/20'}`}>
+                <p className={msg.role === 'assistant' ? 'text-white' : ''} style={{ whiteSpace: 'pre-line' }}>{msg.content}</p>
               </div>
             </motion.div>
           ))}
@@ -76,8 +76,8 @@ export default function SearchPage() {
         {/* Suggested Questions */}
         {messages.length <= 1 && (
           <div className="mb-4">
-            <p className="text-xs text-[#0A192F]/40 dark:text-white/40 mb-3 flex items-center gap-2">
-              <Lightbulb className="w-3.5 h-3.5 text-[#C5A55A]" />
+            <p className="text-xs text-white/40 mb-3 flex items-center gap-2">
+              <Lightbulb className="w-3.5 h-3.5 text-[#F2A44E]" />
               أسئلة مقترحة
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -85,7 +85,7 @@ export default function SearchPage() {
                 <button
                   key={i}
                   onClick={() => { setQuery(q); }}
-                  className="text-right p-3 rounded-xl bg-[#0A192F]/3 dark:bg-white/3 hover:bg-[#0A192F]/5 dark:hover:bg-white/5 text-xs text-[#0A192F]/60 dark:text-white/60 transition-all border border-transparent hover:border-[#C5A55A]/20"
+                  className="text-right p-3 rounded-xl bg-white/3 hover:bg-white/5 text-xs text-white/60 transition-all border border-transparent hover:border-[#F2A44E]/20"
                 >
                   {q}
                 </button>
@@ -96,20 +96,20 @@ export default function SearchPage() {
 
         {/* Input */}
         <div className="glass-card p-2 flex items-center gap-3">
-          <button className="p-2 rounded-xl hover:bg-[#0A192F]/5 dark:hover:bg-white/5 transition-colors">
-            <Sparkles className="w-5 h-5 text-[#C5A55A]" />
+          <button className="p-2 rounded-xl hover:bg-white/5 transition-colors">
+            <Sparkles className="w-5 h-5 text-[#F2A44E]" />
           </button>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="اسأل راصد الذكي..."
-            className="flex-1 bg-transparent text-sm outline-none text-[#0A192F] dark:text-white placeholder:text-[#0A192F]/30 dark:placeholder:text-white/30"
+            className="flex-1 bg-transparent text-sm outline-none text-white placeholder:text-white/30 dark:placeholder:text-white/30"
           />
           <button
             onClick={handleSend}
             disabled={!query.trim()}
-            className="p-2 rounded-xl bg-[#0A192F] dark:bg-[#C5A55A] text-white dark:text-[#0A192F] disabled:opacity-30 transition-all hover:opacity-80"
+            className="p-2 rounded-xl bg-[#0A192F] text-white disabled:opacity-30 transition-all hover:opacity-80"
           >
             <Send className="w-5 h-5" />
           </button>

@@ -30,8 +30,8 @@ export default function ObservabilityPage() {
     <div className="h-full overflow-y-auto px-8 py-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3 mb-6">
-          <h2 className="text-xl font-bold text-[#0A192F] dark:text-white flex items-center gap-2">
-            <Activity className="w-6 h-6 text-[#C5A55A]" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Activity className="w-6 h-6 text-[#F2A44E]" />
             لوحة المراقبة
           </h2>
           <span className="text-[10px] px-2 py-1 rounded-full bg-green-500/10 text-green-500 flex items-center gap-1">
@@ -54,8 +54,8 @@ export default function ObservabilityPage() {
                   <AlertTriangle className="w-4 h-4 text-yellow-500" />
                 )}
               </div>
-              <p className="text-2xl font-bold text-[#0A192F] dark:text-white">{metric.value}</p>
-              <p className="text-xs text-[#0A192F]/40 dark:text-white/40">{metric.label}</p>
+              <p className="text-2xl font-bold text-white">{metric.value}</p>
+              <p className="text-xs text-white/40">{metric.label}</p>
             </GlassCard>
           ))}
         </div>
@@ -63,8 +63,8 @@ export default function ObservabilityPage() {
         {/* Live Logs */}
         <GlassCard>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-[#0A192F] dark:text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#C5A55A]" />
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-[#F2A44E]" />
               سجل الأحداث المباشر
             </h3>
           </div>
@@ -77,14 +77,14 @@ export default function ObservabilityPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#0A192F]/2 dark:hover:bg-white/2 transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/2 transition-colors"
                 >
-                  <span className="text-[#0A192F]/30 dark:text-white/30 w-16 flex-shrink-0">{log.time}</span>
+                  <span className="text-white/30 w-16 flex-shrink-0">{log.time}</span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-medium w-16 text-center" style={{ color: level.color, background: level.bg }}>
                     {log.level.toUpperCase()}
                   </span>
-                  <span className="text-[#0A192F] dark:text-white flex-1">{log.message}</span>
-                  <span className="text-[#0A192F]/20 dark:text-white/20 text-[10px]">{log.source}</span>
+                  <span className="text-white flex-1">{log.message}</span>
+                  <span className="text-white/20 text-[10px]">{log.source}</span>
                 </motion.div>
               );
             })}

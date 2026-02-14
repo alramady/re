@@ -34,8 +34,8 @@ export default function ControlCenterPage() {
     <div className="h-full overflow-y-auto px-8 py-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3 mb-6">
-          <h2 className="text-xl font-bold text-[#0A192F] dark:text-white flex items-center gap-2">
-            <Shield className="w-6 h-6 text-[#C5A55A]" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Shield className="w-6 h-6 text-[#F2A44E]" />
             مركز التحكم
           </h2>
         </div>
@@ -43,8 +43,8 @@ export default function ControlCenterPage() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* System Status */}
           <GlassCard>
-            <h3 className="text-base font-bold text-[#0A192F] dark:text-white flex items-center gap-2 mb-6">
-              <Server className="w-5 h-5 text-[#C5A55A]" />
+            <h3 className="text-base font-bold text-white flex items-center gap-2 mb-6">
+              <Server className="w-5 h-5 text-[#F2A44E]" />
               حالة الأنظمة
             </h3>
             <div className="space-y-3">
@@ -57,16 +57,16 @@ export default function ControlCenterPage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2 hover:bg-[#0A192F]/4 dark:hover:bg-white/4 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-xl bg-white/2 hover:bg-white/4 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${mod.color}15` }}>
                         <mod.icon className="w-4 h-4" style={{ color: mod.color }} />
                       </div>
-                      <span className="text-sm text-[#0A192F] dark:text-white">{mod.name}</span>
+                      <span className="text-sm text-white">{mod.name}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-[#0A192F]/40 dark:text-white/40">{mod.uptime}</span>
+                      <span className="text-xs text-white/40">{mod.uptime}</span>
                       <div className="flex items-center gap-1" style={{ color: statusInfo.color }}>
                         <StatusIcon className="w-4 h-4" />
                         <span className="text-xs">{statusInfo.label}</span>
@@ -80,8 +80,8 @@ export default function ControlCenterPage() {
 
           {/* User Management */}
           <GlassCard>
-            <h3 className="text-base font-bold text-[#0A192F] dark:text-white flex items-center gap-2 mb-6">
-              <Users className="w-5 h-5 text-[#C5A55A]" />
+            <h3 className="text-base font-bold text-white flex items-center gap-2 mb-6">
+              <Users className="w-5 h-5 text-[#F2A44E]" />
               إدارة المستخدمين
             </h3>
             <div className="space-y-3">
@@ -91,21 +91,21 @@ export default function ControlCenterPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2 hover:bg-[#0A192F]/4 dark:hover:bg-white/4 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-xl bg-white/2 hover:bg-white/4 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="w-8 h-8 rounded-full bg-[#0A192F]/10 dark:bg-white/10 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-white/40" />
                       </div>
                       <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#112240] ${user.status === 'active' ? 'bg-green-500' : user.status === 'away' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
                     </div>
                     <div>
-                      <p className="text-sm text-[#0A192F] dark:text-white">{user.name}</p>
-                      <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">{user.role}</p>
+                      <p className="text-sm text-white">{user.name}</p>
+                      <p className="text-[10px] text-white/40">{user.role}</p>
                     </div>
                   </div>
-                  <span className="text-[10px] text-[#0A192F]/30 dark:text-white/30">{user.lastLogin}</span>
+                  <span className="text-[10px] text-white/30">{user.lastLogin}</span>
                 </motion.div>
               ))}
             </div>

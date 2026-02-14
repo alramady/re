@@ -14,7 +14,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 const LOGO_URL = IMAGES.logoMain;
 
 const teamMembers = [
-  { id: 'MRUHAILY', name: 'Muhammed ALRuhaily', displayName: 'Admin Rasid System', role: 'Root & System Admin', status: 'online' as const, avatar: '👨‍💻', color: '#C5A55A' },
+  { id: 'MRUHAILY', name: 'Muhammed ALRuhaily', displayName: 'Admin Rasid System', role: 'Root & System Admin', status: 'online' as const, avatar: '👨‍💻', color: '#F2A44E' },
   { id: 'aalrebdi', name: 'Alrebdi Fahad Alrebdi', displayName: "NDMO's president/director", role: 'System Admin', status: 'online' as const, avatar: '👨‍💼', color: '#4CAF50' },
   { id: 'msarhan', name: 'Mashal Abdullah Alsarhan', displayName: 'Vice President of NDMO', role: 'System Admin', status: 'away' as const, avatar: '👨‍🔬', color: '#FF9800' },
   { id: 'malmoutaz', name: 'Manal Mohammed Almoutaz', displayName: 'Manager of Smart Rasid Platform', role: 'System Admin', status: 'offline' as const, avatar: '🛡️', color: '#9E9E9E' },
@@ -66,19 +66,19 @@ export default function Sidebar() {
         className={cn(
           'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative',
           isActive
-            ? 'bg-[#C5A55A]/15 text-[#C5A55A]'
+            ? 'bg-[#F2A44E]/15 text-[#F2A44E]'
             : 'text-white/50 hover:text-white/80 hover:bg-white/5'
         )}
       >
         {isActive && (
           <motion.div
             layoutId="activeIndicator"
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[#C5A55A] rounded-l-full"
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[#F2A44E] rounded-l-full"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           />
         )}
         <motion.div whileHover={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 0.4 }}>
-          <Icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'drop-shadow-[0_0_6px_rgba(197,165,90,0.5)]')} />
+          <Icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'drop-shadow-[0_0_6px_rgba(242,164,78,0.5)]')} />
         </motion.div>
         <AnimatePresence>
           {!sidebarCollapsed && (
@@ -135,11 +135,11 @@ export default function Sidebar() {
       )}
       style={{
         background: 'linear-gradient(180deg, #0A192F 0%, #112240 100%)',
-        borderLeft: '1px solid rgba(197, 165, 90, 0.15)',
+        borderLeft: '1px solid rgba(242, 164, 78, 0.15)',
       }}
     >
       {/* Logo */}
-      <div className="p-4 flex items-center gap-3 border-b border-[#C5A55A]/10">
+      <div className="p-4 flex items-center gap-3 border-b border-[#F2A44E]/10">
         <motion.div
           animate={{ rotate: [0, 2, -2, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
@@ -165,7 +165,7 @@ export default function Sidebar() {
               className="overflow-hidden"
             >
               <h1 className="text-sm font-bold text-white whitespace-nowrap" style={{ fontFamily: 'Tajawal' }}>منصة راصد</h1>
-              <p className="text-[10px] text-[#C5A55A] whitespace-nowrap">مكتب إدارة البيانات الوطنية</p>
+              <p className="text-[10px] text-[#F2A44E] whitespace-nowrap">مكتب إدارة البيانات الوطنية</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -183,7 +183,7 @@ export default function Sidebar() {
           onClick={toggleTheme}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/5 transition-all"
         >
-          {theme === 'dark' ? <Sun className="w-5 h-5 text-[#C5A55A]" /> : <Moon className="w-5 h-5" />}
+          {theme === 'dark' ? <Sun className="w-5 h-5 text-[#F2A44E]" /> : <Moon className="w-5 h-5" />}
           {!sidebarCollapsed && (
             <span className="text-sm">{theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}</span>
           )}
@@ -221,14 +221,14 @@ export default function Sidebar() {
               <img
                 src={IMAGES.charStanding}
                 alt={admin.name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-[#C5A55A]/30"
+                className="w-10 h-10 rounded-full object-cover border-2 border-[#F2A44E]/30"
               />
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#4CAF50] rounded-full border-2 border-[#0A192F]" />
             </div>
             {!sidebarCollapsed && (
               <div className="min-w-0">
                 <p className="text-xs font-medium text-white truncate">{admin.name}</p>
-                <p className="text-[10px] text-[#C5A55A]/60 truncate">{admin.displayName}</p>
+                <p className="text-[10px] text-[#F2A44E]/60 truncate">{admin.displayName}</p>
               </div>
             )}
           </div>

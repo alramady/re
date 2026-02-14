@@ -29,16 +29,16 @@ export default function HistoryPage() {
     <div className="h-full overflow-y-auto px-8 py-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#0A192F] dark:text-white flex items-center gap-2">
-            <History className="w-6 h-6 text-[#C5A55A]" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <History className="w-6 h-6 text-[#F2A44E]" />
             سجل الحوادث
           </h2>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A192F]/5 hover:bg-[#0A192F]/8 text-[#0A192F]/60 text-xs transition-all dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/60">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/8 text-white/60 text-xs transition-all">
               <Filter className="w-3.5 h-3.5" />
               تصفية
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A192F]/5 hover:bg-[#0A192F]/8 text-[#0A192F]/60 text-xs transition-all dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/60">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/8 text-white/60 text-xs transition-all">
               <Download className="w-3.5 h-3.5" />
               تصدير
             </button>
@@ -49,15 +49,15 @@ export default function HistoryPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#0A192F]/5 dark:border-white/5">
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">رقم الحادثة</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">الوصف</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">الخطورة</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">الحالة</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">القطاع</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">المسؤول</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">التاريخ</th>
-                  <th className="text-right py-3 px-3 text-[10px] text-[#0A192F]/40 dark:text-white/40 font-medium">إجراء</th>
+                <tr className="border-b border-white/5">
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">رقم الحادثة</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">الوصف</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">الخطورة</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">الحالة</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">القطاع</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">المسؤول</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">التاريخ</th>
+                  <th className="text-right py-3 px-3 text-[10px] text-white/40 font-medium">إجراء</th>
                 </tr>
               </thead>
               <tbody>
@@ -65,9 +65,9 @@ export default function HistoryPage() {
                   const sev = severityConfig[inc.severity];
                   const stat = statusConfig[inc.status];
                   return (
-                    <tr key={inc.id} className="border-b border-[#0A192F]/3 dark:border-white/3 hover:bg-[#0A192F]/2 dark:hover:bg-white/2 transition-colors">
-                      <td className="py-3 px-3 font-mono text-xs text-[#C5A55A]">{inc.id}</td>
-                      <td className="py-3 px-3 text-[#0A192F] dark:text-white text-xs">{inc.title}</td>
+                    <tr key={inc.id} className="border-b border-white/3 hover:bg-white/2 transition-colors">
+                      <td className="py-3 px-3 font-mono text-xs text-[#F2A44E]">{inc.id}</td>
+                      <td className="py-3 px-3 text-white text-xs">{inc.title}</td>
                       <td className="py-3 px-3">
                         <span className="px-2 py-1 rounded-full text-[10px] font-medium" style={{ color: sev.color, background: sev.bg }}>{sev.label}</span>
                       </td>
@@ -77,12 +77,12 @@ export default function HistoryPage() {
                           {stat.label}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-[#0A192F]/60 dark:text-white/60 text-xs">{inc.sector}</td>
-                      <td className="py-3 px-3 text-[#0A192F]/60 dark:text-white/60 text-xs">{inc.assignee}</td>
-                      <td className="py-3 px-3 text-[#0A192F]/40 dark:text-white/40 text-xs">{inc.date}</td>
+                      <td className="py-3 px-3 text-white/60 text-xs">{inc.sector}</td>
+                      <td className="py-3 px-3 text-white/60 text-xs">{inc.assignee}</td>
+                      <td className="py-3 px-3 text-white/40 text-xs">{inc.date}</td>
                       <td className="py-3 px-3">
-                        <button className="p-1.5 rounded-lg hover:bg-[#0A192F]/5 dark:hover:bg-white/5 transition-colors">
-                          <Eye className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+                        <button className="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                          <Eye className="w-4 h-4 text-white/40" />
                         </button>
                       </td>
                     </tr>

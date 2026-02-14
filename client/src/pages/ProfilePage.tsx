@@ -19,19 +19,19 @@ export default function ProfilePage() {
               <img
                 src={IMAGES.charProfile}
                 alt={admin.name}
-                className="w-24 h-24 rounded-2xl object-cover border-2 border-[#C5A55A]/30"
+                className="w-24 h-24 rounded-2xl object-cover border-2 border-[#F2A44E]/30"
               />
-              <button className="absolute bottom-0 left-0 w-8 h-8 rounded-full bg-[#C5A55A] flex items-center justify-center shadow-lg">
-                <Camera className="w-4 h-4 text-[#0A192F]" />
+              <button className="absolute bottom-0 left-0 w-8 h-8 rounded-full bg-[#F2A44E] flex items-center justify-center shadow-lg">
+                <Camera className="w-4 h-4 text-white" />
               </button>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-[#0A192F] dark:text-white">{admin.name}</h2>
-              <p className="text-sm text-[#C5A55A] mb-1">{admin.displayName}</p>
-              <p className="text-xs text-[#0A192F]/40 dark:text-white/40">@{admin.username}</p>
+              <h2 className="text-2xl font-bold text-white">{admin.name}</h2>
+              <p className="text-sm text-[#F2A44E] mb-1">{admin.displayName}</p>
+              <p className="text-xs text-white/40">@{admin.username}</p>
             </div>
             <div className="mr-auto">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A192F]/5 dark:bg-white/5 text-[#0A192F]/60 dark:text-white/60 text-sm hover:bg-[#0A192F]/8 dark:hover:bg-white/8 transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-white/60 text-sm hover:bg-white/8 transition-colors">
                 <Edit className="w-4 h-4" />
                 تعديل
               </button>
@@ -42,44 +42,44 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Personal Info */}
           <GlassCard>
-            <h3 className="text-base font-bold text-[#0A192F] dark:text-white flex items-center gap-2 mb-6">
-              <User className="w-5 h-5 text-[#C5A55A]" />
+            <h3 className="text-base font-bold text-white flex items-center gap-2 mb-6">
+              <User className="w-5 h-5 text-[#F2A44E]" />
               المعلومات الشخصية
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <User className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <User className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">الاسم الكامل</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white">{admin.name}</p>
+                  <p className="text-[10px] text-white/40">الاسم الكامل</p>
+                  <p className="text-sm text-white">{admin.name}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Briefcase className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Briefcase className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">المسمى الوظيفي</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white">{admin.displayName}</p>
+                  <p className="text-[10px] text-white/40">المسمى الوظيفي</p>
+                  <p className="text-sm text-white">{admin.displayName}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Mail className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Mail className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">البريد الإلكتروني</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white">{admin.email || 'غير محدد'}</p>
+                  <p className="text-[10px] text-white/40">البريد الإلكتروني</p>
+                  <p className="text-sm text-white">{admin.email || 'غير محدد'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Phone className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Phone className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">رقم الجوال</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white" dir="ltr">{admin.phone || 'غير محدد'}</p>
+                  <p className="text-[10px] text-white/40">رقم الجوال</p>
+                  <p className="text-sm text-white" dir="ltr">{admin.phone || 'غير محدد'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Key className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Key className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">معرف المستخدم</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white font-mono">{admin.username}</p>
+                  <p className="text-[10px] text-white/40">معرف المستخدم</p>
+                  <p className="text-sm text-white font-mono">{admin.username}</p>
                 </div>
               </div>
             </div>
@@ -87,30 +87,30 @@ export default function ProfilePage() {
 
           {/* Security & Access */}
           <GlassCard>
-            <h3 className="text-base font-bold text-[#0A192F] dark:text-white flex items-center gap-2 mb-6">
-              <Shield className="w-5 h-5 text-[#C5A55A]" />
+            <h3 className="text-base font-bold text-white flex items-center gap-2 mb-6">
+              <Shield className="w-5 h-5 text-[#F2A44E]" />
               الأمان والوصول
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Shield className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Shield className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">الدور</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white">{admin.role === 'root' ? 'Root & System Admin' : 'System Admin'}</p>
+                  <p className="text-[10px] text-white/40">الدور</p>
+                  <p className="text-sm text-white">{admin.role === 'root' ? 'Root & System Admin' : 'System Admin'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Calendar className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Calendar className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">تاريخ الإنشاء</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white">1 يناير 2026</p>
+                  <p className="text-[10px] text-white/40">تاريخ الإنشاء</p>
+                  <p className="text-sm text-white">1 يناير 2026</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0A192F]/2 dark:bg-white/2">
-                <Clock className="w-4 h-4 text-[#0A192F]/40 dark:text-white/40" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/2">
+                <Clock className="w-4 h-4 text-white/40" />
                 <div>
-                  <p className="text-[10px] text-[#0A192F]/40 dark:text-white/40">آخر تسجيل دخول</p>
-                  <p className="text-sm text-[#0A192F] dark:text-white">الآن</p>
+                  <p className="text-[10px] text-white/40">آخر تسجيل دخول</p>
+                  <p className="text-sm text-white">الآن</p>
                 </div>
               </div>
             </div>
