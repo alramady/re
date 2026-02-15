@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import SEOHead from "@/components/SEOHead";
 
 const statusBadge = (status: string, lang: string) => {
   const map: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string; labelAr: string }> = {
@@ -86,6 +87,7 @@ export default function TenantDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="Tenant Dashboard" titleAr="لوحة المستأجر" path="/tenant" noindex={true} />
       <Navbar />
       <div className="container py-6">
         <div className="mb-6">

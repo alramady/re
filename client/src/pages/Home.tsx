@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
@@ -56,6 +57,7 @@ function AnimatedCounter({ target, suffix = "" }: { target: string; suffix?: str
 
   return (
     <div ref={ref} className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#3ECFC0] font-heading counter-glow">
+      <SEOHead title="Monthly Rental Platform" titleAr="منصة التأجير الشهري" description="Find furnished apartments, studios, and villas for monthly rent across Saudi Arabia." path="/" />
       {count.toLocaleString("en-US")}{hasPercent ? "%" : ""}{hasPlus ? "+" : ""}{suffix}
     </div>
   );

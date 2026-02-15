@@ -3,6 +3,7 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Shield } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
 
 export default function PrivacyPolicy() {
   const { lang, dir } = useI18n();
@@ -314,6 +315,12 @@ For any inquiries or requests regarding your personal data privacy, please conta
 
   return (
     <div className="min-h-screen flex flex-col bg-background" dir={dir}>
+      <SEOHead
+        title="Privacy Policy"
+        titleAr="سياسة الخصوصية"
+        description="Privacy policy compliant with Saudi PDPL regulations"
+        path="/privacy"
+      />
       <Navbar />
       <main className="flex-1 container py-8 sm:py-12 max-w-4xl">
         <div className="flex items-center gap-3 mb-8">

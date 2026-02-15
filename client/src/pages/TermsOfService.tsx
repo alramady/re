@@ -3,6 +3,7 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { FileText } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
 
 export default function TermsOfService() {
   const { lang, dir } = useI18n();
@@ -310,6 +311,7 @@ For any inquiries about these Terms and Conditions, please contact us through th
 
   return (
     <div className="min-h-screen flex flex-col bg-background" dir={dir}>
+      <SEOHead title="Terms of Service" titleAr="الشروط والأحكام" description="Terms and conditions for using Monthly Key rental platform" path="/terms" />
       <Navbar />
       <main className="flex-1 container py-8 sm:py-12 max-w-4xl">
         <div className="flex items-center gap-3 mb-8">

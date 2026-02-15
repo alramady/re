@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -73,6 +74,7 @@ export default function LandlordDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="Landlord Dashboard" titleAr="لوحة المالك" path="/landlord" noindex={true} />
       <Navbar />
       <div className="container py-6">
         <div className="flex items-center justify-between mb-6">

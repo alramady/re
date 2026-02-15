@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
+import SEOHead from "@/components/SEOHead";
 
 type PaymentMethod = "paypal" | "apple_pay" | "google_pay" | "cash";
 
@@ -156,6 +157,7 @@ export default function PaymentPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
+      <SEOHead title="Payment" titleAr="الدفع" path="/pay" noindex={true} />
       <Navbar />
       <div className="container py-6 max-w-2xl">
         <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="mb-4 hover:bg-muted/80">

@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -75,6 +76,7 @@ export default function BookingFlow() {
   if (property.isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
+      <SEOHead title="Book Property" titleAr="حجز عقار" path="/book" noindex={true} />
         <Navbar />
         <div className="container py-8"><Skeleton className="h-96 w-full" /></div>
       </div>

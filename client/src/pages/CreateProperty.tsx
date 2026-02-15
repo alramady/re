@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -139,6 +140,7 @@ export default function CreateProperty() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="List Property" titleAr="إضافة عقار" path="/list-property" noindex={true} />
       <Navbar />
       <div className="container py-6 max-w-3xl">
         <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="mb-4">

@@ -9,6 +9,7 @@ import * as db from "./db";
 import { getAiResponse, seedDefaultKnowledgeBase } from "./ai-assistant";
 import { generateLeaseContractHTML } from "./lease-contract";
 import { createPayPalOrder, capturePayPalOrder, getPayPalSettings } from "./paypal";
+import { notifyOwner } from "./_core/notification";
 
 export const appRouter = router({
   system: systemRouter,
@@ -304,6 +305,13 @@ export const appRouter = router({
           relatedId: id ?? undefined,
           relatedType: "booking",
         });
+        // Email notification to admin/owner
+        try {
+          await notifyOwner({
+            title: `طلب حجز جديد - New Booking Request #${id}`,
+            content: `طلب حجز جديد للعقار: ${prop.titleAr || prop.titleEn}\nالمستأجر: ${ctx.user.displayName || ctx.user.name}\nالمدة: ${input.durationMonths} شهر\nالمبلغ: ${totalAmount} ر.س\n\nNew booking for: ${prop.titleEn}\nTenant: ${ctx.user.displayName || ctx.user.name}\nDuration: ${input.durationMonths} month(s)\nTotal: SAR ${totalAmount}`,
+          });
+        } catch { /* notification delivery is best-effort */ }
         return { id, status: prop.instantBook ? "approved" : "pending" };
       }),
 
@@ -332,6 +340,14 @@ export const appRouter = router({
           relatedId: input.id,
           relatedType: "booking",
         });
+        // Email notification to owner about status change
+        try {
+          const statusAr = input.status === "approved" ? "تم قبول الحجز" : input.status === "rejected" ? "تم رفض الحجز" : "تم إلغاء الحجز";
+          await notifyOwner({
+            title: `تحديث حالة الحجز #${input.id} - Booking Status Update`,
+            content: `${statusAr}\nرقم الحجز: ${input.id}\n${input.rejectionReason ? `سبب الرفض: ${input.rejectionReason}` : ""}\n\nBooking #${input.id} status changed to: ${input.status}${input.rejectionReason ? `\nReason: ${input.rejectionReason}` : ""}`,
+          });
+        } catch { /* best-effort */ }
         return { success: true };
       }),
 
@@ -1364,6 +1380,38 @@ export const appRouter = router({
         "14:00-15:00", "15:00-16:00", "16:00-17:00"
       ];
     }),
+  }),
+
+  // Contact Messages
+  contact: router({
+    submit: publicProcedure
+      .input(z.object({
+        name: z.string().min(2),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        subject: z.string().min(3),
+        message: z.string().min(10),
+      }))
+      .mutation(async ({ input }) => {
+        const id = await db.createContactMessage(input);
+        // Notify owner about new contact message
+        try {
+          await notifyOwner({
+            title: `رسالة تواصل جديدة - New Contact Message`,
+            content: `الاسم: ${input.name}\nالبريد: ${input.email}\nالهاتف: ${input.phone || "غير محدد"}\nالموضوع: ${input.subject}\nالرسالة: ${input.message}\n\nName: ${input.name}\nEmail: ${input.email}\nPhone: ${input.phone || "N/A"}\nSubject: ${input.subject}\nMessage: ${input.message}`,
+          });
+        } catch { /* best-effort */ }
+        return { id, success: true };
+      }),
+    list: adminProcedure.query(async () => {
+      return db.getContactMessages();
+    }),
+    updateStatus: adminProcedure
+      .input(z.object({ id: z.number(), status: z.enum(["read", "replied"]) }))
+      .mutation(async ({ input }) => {
+        await db.updateContactMessageStatus(input.id, input.status);
+        return { success: true };
+      }),
   }),
 
   // Upload

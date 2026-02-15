@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
@@ -74,6 +75,7 @@ export default function Search() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="Search Properties" titleAr="البحث عن عقارات" description="Search furnished apartments and properties for monthly rent in Saudi Arabia" path="/search" />
       <Navbar />
 
       <div className="container py-6">

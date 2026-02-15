@@ -15,6 +15,7 @@ import {
   propertyManagers, InsertPropertyManager,
   propertyManagerAssignments,
   inspectionRequests, InsertInspectionRequest,
+  contactMessages, InsertContactMessage,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1119,4 +1120,30 @@ export async function updateInspectionStatus(id: number, status: string, adminNo
   if (status === "confirmed") updateData.confirmedAt = new Date();
   if (status === "completed") updateData.completedAt = new Date();
   await db.update(inspectionRequests).set(updateData).where(eq(inspectionRequests.id, id));
+}
+
+// ─── Contact Messages ───────────────────────────────────────────────
+export async function createContactMessage(data: InsertContactMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db.insert(contactMessages).values(data as any);
+  return result[0].insertId;
+}
+
+export async function getContactMessages(status?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  if (status) {
+    return await db.select().from(contactMessages)
+      .where(eq(contactMessages.status, status as any))
+      .orderBy(desc(contactMessages.createdAt));
+  }
+  return await db.select().from(contactMessages)
+    .orderBy(desc(contactMessages.createdAt));
+}
+
+export async function updateContactMessageStatus(id: number, status: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(contactMessages).set({ status: status as any }).where(eq(contactMessages.id, id));
 }

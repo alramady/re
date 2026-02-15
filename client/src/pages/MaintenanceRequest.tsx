@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -78,6 +79,7 @@ export default function MaintenanceRequest() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="Maintenance Request" titleAr="طلب صيانة" path="/maintenance-request" noindex={true} />
       <Navbar />
       <div className="container py-6 max-w-2xl">
         <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="mb-4">

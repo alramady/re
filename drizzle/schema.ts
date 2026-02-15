@@ -444,3 +444,18 @@ export const inspectionRequests = mysqlTable("inspectionRequests", {
 
 export type InspectionRequest = typeof inspectionRequests.$inferSelect;
 export type InsertInspectionRequest = typeof inspectionRequests.$inferInsert;
+
+// ─── Contact Messages ───────────────────────────────────────────────
+export const contactMessages = mysqlTable("contact_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  message: text("message").notNull(),
+  status: mysqlEnum("status", ["new", "read", "replied"]).default("new").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertContactMessage = typeof contactMessages.$inferInsert;

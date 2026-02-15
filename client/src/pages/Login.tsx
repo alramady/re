@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Link, useLocation, useSearch } from "wouter";
 import { Loader2, KeyRound, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import SEOHead from "@/components/SEOHead";
 
 export default function Login() {
   const { t, lang, dir } = useI18n();
@@ -50,6 +51,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-cyan-50 flex items-center justify-center p-4" dir={dir}>
+      <SEOHead title="Login" titleAr="تسجيل الدخول" path="/login" noindex={true} />
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">

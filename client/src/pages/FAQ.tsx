@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import Navbar from "@/components/Navbar";
@@ -146,6 +147,12 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col" dir={dir}>
+      <SEOHead
+        title="FAQ"
+        titleAr="الأسئلة الشائعة"
+        description="Frequently asked questions about monthly rentals in Saudi Arabia"
+        path="/faq"
+      />
       <Navbar />
 
       {/* Hero */}
@@ -226,50 +233,20 @@ export default function FAQ() {
                         {question}
                       </span>
                       <ChevronDown
-                        className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
-                          isOpen ? "rotate-180 text-[#3ECFC0]" : "text-gray-400"
+                        className={`h-5 w-5 text-gray-400 transition-transform ${
+                          isOpen ? "rotate-180" : ""
                         }`}
                       />
                     </button>
                     {isOpen && (
-                      <div className="px-5 pb-5 -mt-1">
-                        <div className="border-t border-gray-100 pt-4">
-                          <p className="text-gray-600 leading-relaxed whitespace-pre-line">{answer}</p>
-                        </div>
+                      <div className="p-5 pt-0 text-gray-600 leading-relaxed text-base -mt-2 animate-in fade-in duration-300 zoom-in-95">
+                        <p>{answer}</p>
                       </div>
                     )}
                   </div>
                 );
               })
             )}
-          </div>
-
-          {/* Contact CTA */}
-          <div className="mt-12 bg-[#0B1E2D] rounded-2xl p-8 text-center text-white">
-            <h3 className="text-xl font-bold font-heading mb-3">
-              {lang === "ar" ? "لم تجد إجابة لسؤالك؟" : "Didn't find your answer?"}
-            </h3>
-            <p className="text-white/60 mb-6">
-              {lang === "ar"
-                ? "تواصل معنا مباشرة وسنكون سعداء بمساعدتك"
-                : "Contact us directly and we'll be happy to help"}
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <a
-                href="https://wa.me/966504466528"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-xl font-medium transition-colors"
-              >
-                {lang === "ar" ? "واتساب" : "WhatsApp"}
-              </a>
-              <a
-                href="/messages"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#3ECFC0] hover:bg-[#35B8AC] text-[#0B1E2D] rounded-xl font-medium transition-colors"
-              >
-                {lang === "ar" ? "الرسائل" : "Messages"}
-              </a>
-            </div>
           </div>
         </div>
       </main>

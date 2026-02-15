@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -64,6 +65,7 @@ export default function Messages() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="Messages" titleAr="الرسائل" path="/messages" noindex={true} />
       <Navbar />
       <div className="container py-4 flex-1 flex flex-col">
         <div className="flex-1 flex gap-4 min-h-0" style={{ height: "calc(100vh - 8rem)" }}>
@@ -143,7 +145,7 @@ export default function Messages() {
                         return (
                           <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                             <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
-                              isMine ? "bg-primary text-primary-foreground rounded-ee-sm" : "bg-secondary rounded-es-sm"
+                              isMine ? "bg-primary text-primary-foreground rounded-ee-sm" : "bg-secondary rounded-es-sm" 
                             }`}>
                               <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                               <span className={`text-[10px] mt-1 block ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>

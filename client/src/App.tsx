@@ -39,6 +39,7 @@ const PaymentPage = lazy(() => import("./pages/PaymentPage"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
 
 function PageLoader() {
   return (
@@ -79,6 +80,7 @@ function Router() {
         <Route path="/faq" component={FAQ} />
         <Route path="/privacy" component={PrivacyPolicy} />
         <Route path="/terms" component={TermsOfService} />
+        <Route path="/contact" component={ContactUs} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

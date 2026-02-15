@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -91,6 +92,7 @@ export default function PropertyDetail() {
   if (property.isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
+      <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
         <Navbar />
         <div className="container py-8 space-y-6">
           <Skeleton className="h-[400px] rounded-xl" />
@@ -104,6 +106,7 @@ export default function PropertyDetail() {
   if (!prop) {
     return (
       <div className="min-h-screen flex flex-col">
+      <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
         <Navbar />
         <div className="container py-20 text-center">
           <p className="text-muted-foreground">{lang === "ar" ? "العقار غير موجود" : "Property not found"}</p>
@@ -131,6 +134,7 @@ export default function PropertyDetail() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
       <Navbar />
 
       <div className="container py-6">

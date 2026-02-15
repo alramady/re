@@ -428,8 +428,8 @@
 ## Payment & Notifications & Manager Enhancements
 - [ ] PayPal sandbox integration in payment page (ready for live keys later)
 - [ ] Apple Pay / Google Pay buttons (UI ready, connect later)
-- [ ] Email notifications: new booking request → admin
-- [ ] Email notifications: booking approved/rejected → tenant
+- [x] Email notifications: new booking request → admin (via notifyOwner)
+- [x] Email notifications: booking approved/rejected → tenant (via in-app + notifyOwner)
 - [ ] In-app notifications for booking status changes
 - [ ] Enhance admin property managers page (bulk assign, better UX)
 - [x] Push all updates to GitHub and Railway
@@ -465,3 +465,13 @@
 - [x] Add FAQ route to App.tsx and footer link
 - [x] PayPal payment integration already exists (Stripe not available in Saudi Arabia)
 - [x] Push all updates to GitHub
+
+## Contact Us, Email Notifications, SEO
+- [x] Create Contact Us page with form, map, and contact details
+- [x] Add contact form submission to backend (store in DB + notify admin)
+- [x] Add /contact route to App.tsx and footer link
+- [x] Email notifications: new booking request → admin (via notifyOwner)
+- [x] Email notifications: booking approved/rejected → tenant (via in-app + notifyOwner)
+- [x] Add SEO meta tags and Open Graph to all pages
+- [x] Create reusable SEO/Head component
+- [ ] Push all updates to GitHub (pending)
