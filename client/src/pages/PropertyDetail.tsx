@@ -10,13 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
 import {
   Heart, Share2, MapPin, BedDouble, Bath, Maximize2, Building, Calendar,
   CheckCircle, Star, MessageSquare, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight,
   Wifi, Car, Dumbbell, Shield, Wind, Droplets, Zap, Flame, Tv, Shirt,
-  Phone, UserCog, Clock, Eye
+  Phone, UserCog, Clock, Eye, Calculator, X, TrendingUp, Percent, DollarSign
 } from "lucide-react";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +43,6 @@ const amenityAr: Record<string, string> = {
   garden: "حديقة", storage: "مستودع", "maid room": "غرفة خادمة",
   "central ac": "تكييف مركزي", "satellite/cable": "قنوات فضائية",
   internet: "إنترنت", maintenance: "صيانة",
-  // Additional amenities
   concierge: "خدمة الاستقبال", "smart home": "منزل ذكي",
   "private entrance": "مدخل خاص", "driver room": "غرفة سائق",
   "rooftop": "سطح", "playground": "ملعب أطفال",
@@ -56,6 +56,7 @@ const amenityAr: Record<string, string> = {
   "oven": "فرن", "refrigerator": "ثلاجة",
   "iron": "مكواة", "closet": "خزانة ملابس",
   "desk": "مكتب", "sofa": "أريكة",
+  "maid_room": "غرفة خادمة", "driver_room": "غرفة سائق",
 };
 
 export default function PropertyDetail() {
@@ -65,6 +66,8 @@ export default function PropertyDetail() {
   const [, setLocation] = useLocation();
   const [currentPhoto, setCurrentPhoto] = useState(0);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcMonths, setCalcMonths] = useState(1);
 
   const id = Number(params?.id);
   const property = trpc.property.getById.useQuery({ id }, { enabled: !!id });
@@ -83,7 +86,6 @@ export default function PropertyDetail() {
   const [inspectionName, setInspectionName] = useState("");
   const [inspectionPhone, setInspectionPhone] = useState("");
   const [inspectionNotes, setInspectionNotes] = useState("");
-  const [inspectionSubmitting, setInspectionSubmitting] = useState(false);
 
   const createInspection = trpc.inspection.create.useMutation({
     onSuccess: () => {
@@ -91,10 +93,9 @@ export default function PropertyDetail() {
       setInspectionOpen(false);
       setInspectionDate(""); setInspectionTime(""); setInspectionNotes("");
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err: any) => toast.error(err.message),
   });
 
-  // Parse time slots from CMS
   const timeSlots = useMemo(() => {
     try {
       const raw = siteSetting("inspection.timeSlots", '["09:00-10:00","10:00-11:00","11:00-12:00","14:00-15:00","15:00-16:00","16:00-17:00"]');
@@ -102,11 +103,86 @@ export default function PropertyDetail() {
     } catch { return ["09:00-10:00","10:00-11:00","14:00-15:00","15:00-16:00"]; }
   }, [siteSetting]);
 
+  // Finance calculator values
+  const serviceFeePercent = Number(siteSetting("fees.serviceFeePercent", "5"));
+  const vatPercent = Number(siteSetting("fees.vatPercent", "15"));
+  const depositPercent = Number(siteSetting("fees.depositPercent", "10"));
+
   const prop = property.data;
+
+  // Calculator computations
+  const calcData = useMemo(() => {
+    if (!prop) return null;
+    const rent = Number(prop.monthlyRent);
+    const totalRent = rent * calcMonths;
+    const deposit = rent * (depositPercent / 100);
+    const serviceFee = totalRent * (serviceFeePercent / 100);
+    const subtotal = totalRent + deposit + serviceFee;
+    const vat = subtotal * (vatPercent / 100);
+    const grandTotal = subtotal + vat;
+    return { rent, totalRent, deposit, serviceFee, subtotal, vat, grandTotal };
+  }, [prop, calcMonths, serviceFeePercent, vatPercent, depositPercent]);
+
+  // Map ready handler with InfoWindow
+  const handleMapReady = useCallback((map: google.maps.Map) => {
+    if (!prop) return;
+    mapRef.current = map;
+    const lat = prop.latitude ? Number(prop.latitude) : 24.7136;
+    const lng = prop.longitude ? Number(prop.longitude) : 46.6753;
+    const position = { lat, lng };
+
+    const titleText = lang === "ar" ? prop.titleAr : prop.titleEn;
+    const cityText = lang === "ar" ? prop.cityAr : prop.city;
+    const districtText = lang === "ar" ? prop.districtAr : prop.district;
+    const locationText = districtText ? `${districtText}، ${cityText}` : cityText;
+    const rentText = `${Number(prop.monthlyRent).toLocaleString()} ${lang === "ar" ? "ر.س" : "SAR"}`;
+    const monthLabel = lang === "ar" ? "شهرياً" : "/month";
+    const bedsLabel = lang === "ar" ? "غرف" : "beds";
+    const bathsLabel = lang === "ar" ? "حمام" : "baths";
+    const sqmLabel = lang === "ar" ? "م²" : "sqm";
+
+    const infoContent = `
+      <div style="font-family:'Tajawal',sans-serif;direction:${dir};padding:8px;min-width:220px;max-width:300px;">
+        <div style="font-weight:700;font-size:15px;color:#0B1E2D;margin-bottom:4px;">${titleText || ""}</div>
+        <div style="font-size:12px;color:#666;margin-bottom:8px;display:flex;align-items:center;gap:4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3ECFC0" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${locationText || ""}
+        </div>
+        <div style="display:flex;gap:12px;font-size:12px;color:#555;margin-bottom:8px;">
+          ${prop.bedrooms != null ? `<span>🛏 ${prop.bedrooms} ${bedsLabel}</span>` : ""}
+          ${prop.bathrooms != null ? `<span>🚿 ${prop.bathrooms} ${bathsLabel}</span>` : ""}
+          ${prop.sizeSqm != null ? `<span>📐 ${prop.sizeSqm} ${sqmLabel}</span>` : ""}
+        </div>
+        <div style="background:linear-gradient(135deg,#0B1E2D,#132d42);color:#3ECFC0;padding:8px 12px;border-radius:8px;text-align:center;">
+          <span style="font-size:18px;font-weight:700;">${rentText}</span>
+          <span style="font-size:11px;color:#8ecfc4;margin-${dir === "rtl" ? "right" : "left"}:4px;">${monthLabel}</span>
+        </div>
+      </div>
+    `;
+
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position,
+      title: titleText || "",
+    });
+
+    const infoWindow = new google.maps.InfoWindow({
+      content: infoContent,
+      ariaLabel: titleText || "",
+    });
+
+    // Open info window by default
+    infoWindow.open({ anchor: marker, map });
+
+    marker.addListener("click", () => {
+      infoWindow.open({ anchor: marker, map });
+    });
+  }, [prop, lang, dir]);
+
   if (property.isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-      <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
+        <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
         <Navbar />
         <div className="container py-8 space-y-6">
           <Skeleton className="h-[400px] rounded-xl" />
@@ -120,7 +196,7 @@ export default function PropertyDetail() {
   if (!prop) {
     return (
       <div className="min-h-screen flex flex-col">
-      <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
+        <SEOHead title="Property Details" titleAr="تفاصيل العقار" description="View property details, photos, amenities and book monthly rental in Saudi Arabia" path="/property" />
         <Navbar />
         <div className="container py-20 text-center">
           <p className="text-muted-foreground">{lang === "ar" ? "العقار غير موجود" : "Property not found"}</p>
@@ -286,7 +362,7 @@ export default function PropertyDetail() {
                 <CardHeader><CardTitle>{t("property.amenities")}</CardTitle></CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {prop.amenities.map((amenity, i) => {
+                    {prop.amenities.map((amenity: string, i: number) => {
                       const key = amenity.toLowerCase();
                       const Icon = amenityIcons[key] || CheckCircle;
                       const label = lang === "ar" ? (amenityAr[key] || amenity) : amenity;
@@ -302,25 +378,23 @@ export default function PropertyDetail() {
               </Card>
             )}
 
-            {/* Map */}
+            {/* Map with property info */}
             <Card>
-              <CardHeader><CardTitle>{t("property.location")}</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5 text-primary" />{t("property.location")}</CardTitle></CardHeader>
               <CardContent>
                 <MapView
-                  className="h-[300px] rounded-lg"
+                  className="h-[350px] rounded-lg"
                   initialCenter={{ lat, lng }}
                   initialZoom={15}
-                  onMapReady={(map) => {
-                    mapRef.current = map;
-                    new google.maps.marker.AdvancedMarkerElement({
-                      map,
-                      position: { lat, lng },
-                      title: title,
-                    });
-                  }}
+                  onMapReady={handleMapReady}
                 />
+                <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4 text-primary shrink-0" />
+                  <span>{district && `${district}، `}{city}</span>
+                </div>
               </CardContent>
             </Card>
+
             {/* Reviews Section */}
             <Card>
               <CardHeader>
@@ -388,140 +462,299 @@ export default function PropertyDetail() {
             </Card>
           </div>
 
-          {/* Sidebar - Booking card */}
+          {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-20">
-              <Card className="shadow-lg">
-                <CardContent className="p-6 space-y-4">
-                  <div>
-                    <div className="text-3xl font-bold text-primary font-heading">
-                      {Number(prop.monthlyRent).toLocaleString()} {t("payment.sar")}
+            <div className="sticky top-20 space-y-4">
+
+              {/* Booking Card — hidden when calculator is open */}
+              {!showCalculator && (
+                <Card className="shadow-lg">
+                  <CardContent className="p-6 space-y-4">
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-heading">
+                        {Number(prop.monthlyRent).toLocaleString()} {t("payment.sar")}
+                      </div>
+                      <span className="text-muted-foreground text-sm">{t("property.perMonth")}</span>
                     </div>
-                    <span className="text-muted-foreground text-sm">{t("property.perMonth")}</span>
-                  </div>
 
-                  <Separator />
+                    <Separator />
 
-                  {prop.securityDeposit && (
+                    {prop.securityDeposit && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{t("property.securityDeposit")}</span>
+                        <span className="font-medium">{Number(prop.securityDeposit).toLocaleString()} {t("payment.sar")}</span>
+                      </div>
+                    )}
+
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t("property.securityDeposit")}</span>
-                      <span className="font-medium">{Number(prop.securityDeposit).toLocaleString()} {t("payment.sar")}</span>
+                      <span className="text-muted-foreground">{lang === "ar" ? "الحد الأدنى للإقامة" : "Min Stay"}</span>
+                      <span className="font-medium">1 {lang === "ar" ? "شهر" : "Month"}</span>
                     </div>
-                  )}
 
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{lang === "ar" ? "الحد الأدنى للإقامة" : "Min Stay"}</span>
-                    <span className="font-medium">1 {lang === "ar" ? "شهر" : "Month"}</span>
-                  </div>
-
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{lang === "ar" ? "الحد الأقصى للإقامة" : "Max Stay"}</span>
-                    <span className="font-medium">2 {lang === "ar" ? "أشهر" : "Months"}</span>
-                  </div>
-
-                  {prop.furnishedLevel && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t("search.furnished")}</span>
-                      <span className="font-medium">{t(`search.${prop.furnishedLevel}` as any)}</span>
+                      <span className="text-muted-foreground">{lang === "ar" ? "الحد الأقصى للإقامة" : "Max Stay"}</span>
+                      <span className="font-medium">2 {lang === "ar" ? "أشهر" : "Months"}</span>
                     </div>
-                  )}
 
-                  <Separator />
+                    {prop.furnishedLevel && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{t("search.furnished")}</span>
+                        <span className="font-medium">{t(`search.${prop.furnishedLevel}` as any)}</span>
+                      </div>
+                    )}
 
-                  <Button
-                    className="w-full bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] btn-animate border-0 font-semibold"
-                    size="lg"
-                    onClick={() => {
-                      if (!isAuthenticated) { toast.error(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please sign in first"); return; }
-                      setLocation(`/book/${id}`);
-                    }}
-                  >
-                    {prop.instantBook ? t("property.bookNow") : t("property.requestBooking")}
-                  </Button>
+                    <Separator />
 
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      if (!isAuthenticated) { toast.error(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please sign in first"); return; }
-                      setLocation(`/messages?to=${prop.landlordId}&property=${id}`);
-                    }}
-                  >
-                    <MessageSquare className="h-4 w-4 me-2" />
-                    {t("property.contactLandlord")}
-                  </Button>
+                    <Button
+                      className="w-full bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] btn-animate border-0 font-semibold"
+                      size="lg"
+                      onClick={() => {
+                        if (!isAuthenticated) { toast.error(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please sign in first"); return; }
+                        setLocation(`/book/${id}`);
+                      }}
+                    >
+                      {prop.instantBook ? t("property.bookNow") : t("property.requestBooking")}
+                    </Button>
 
-                  {/* Inspection Request Button */}
-                  <Dialog open={inspectionOpen} onOpenChange={setInspectionOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full border-[#3ECFC0]/40 text-[#3ECFC0] hover:bg-[#3ECFC0]/10">
-                        <Eye className="h-4 w-4 me-2" />
-                        {lang === "ar" ? "طلب معاينة" : "Request Inspection"}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md" dir={dir}>
-                      <DialogHeader>
-                        <DialogTitle className="font-heading">
-                          {lang === "ar" ? "طلب معاينة العقار" : "Request Property Inspection"}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label>{lang === "ar" ? "الاسم الكامل" : "Full Name"}</Label>
-                          <Input value={inspectionName} onChange={(e) => setInspectionName(e.target.value)} placeholder={lang === "ar" ? "أدخل اسمك" : "Enter your name"} />
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        if (!isAuthenticated) { toast.error(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please sign in first"); return; }
+                        setLocation(`/messages?to=${prop.landlordId}&property=${id}`);
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4 me-2" />
+                      {t("property.contactLandlord")}
+                    </Button>
+
+                    {/* Inspection Request Button */}
+                    <Dialog open={inspectionOpen} onOpenChange={setInspectionOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full border-[#3ECFC0]/40 text-[#3ECFC0] hover:bg-[#3ECFC0]/10">
+                          <Eye className="h-4 w-4 me-2" />
+                          {lang === "ar" ? "طلب معاينة" : "Request Inspection"}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md" dir={dir}>
+                        <DialogHeader>
+                          <DialogTitle className="font-heading">
+                            {lang === "ar" ? "طلب معاينة العقار" : "Request Property Inspection"}
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label>{lang === "ar" ? "الاسم الكامل" : "Full Name"}</Label>
+                            <Input value={inspectionName} onChange={(e) => setInspectionName(e.target.value)} placeholder={lang === "ar" ? "أدخل اسمك" : "Enter your name"} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>{lang === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
+                            <Input value={inspectionPhone} onChange={(e) => setInspectionPhone(e.target.value)} placeholder="05xxxxxxxx" dir="ltr" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>{lang === "ar" ? "تاريخ المعاينة" : "Inspection Date"}</Label>
+                            <Input type="date" value={inspectionDate} onChange={(e) => setInspectionDate(e.target.value)} min={new Date().toISOString().split('T')[0]} dir="ltr" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>{lang === "ar" ? "الوقت المفضل" : "Preferred Time"}</Label>
+                            <Select value={inspectionTime} onValueChange={setInspectionTime}>
+                              <SelectTrigger><SelectValue placeholder={lang === "ar" ? "اختر الوقت" : "Select time"} /></SelectTrigger>
+                              <SelectContent>
+                                {timeSlots.map(slot => (
+                                  <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>{lang === "ar" ? "ملاحظات" : "Notes"}</Label>
+                            <Textarea value={inspectionNotes} onChange={(e) => setInspectionNotes(e.target.value)} placeholder={lang === "ar" ? "أي ملاحظات إضافية..." : "Any additional notes..."} />
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label>{lang === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
-                          <Input value={inspectionPhone} onChange={(e) => setInspectionPhone(e.target.value)} placeholder="05xxxxxxxx" dir="ltr" />
+                        <DialogFooter>
+                          <Button
+                            className="w-full bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] font-semibold"
+                            disabled={createInspection.isPending || !inspectionDate || !inspectionTime || !inspectionName || !inspectionPhone}
+                            onClick={() => {
+                              createInspection.mutate({
+                                propertyId: id,
+                                requestedDate: inspectionDate,
+                                requestedTimeSlot: inspectionTime,
+                                fullName: inspectionName,
+                                phone: inspectionPhone,
+                                notes: inspectionNotes,
+                              });
+                            }}
+                          >
+                            {createInspection.isPending 
+                              ? (lang === "ar" ? "جاري الإرسال..." : "Submitting...") 
+                              : (lang === "ar" ? "إرسال طلب المعاينة" : "Submit Inspection Request")}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* Calculator Toggle Button */}
+                    <Button
+                      variant="outline"
+                      className="w-full border-[#C9A96E]/40 text-[#C9A96E] hover:bg-[#C9A96E]/10"
+                      onClick={() => setShowCalculator(true)}
+                    >
+                      <Calculator className="h-4 w-4 me-2" />
+                      {lang === "ar" ? "حاسبة التكاليف" : "Cost Calculator"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Finance Calculator — shown when toggled, replaces booking card */}
+              {showCalculator && calcData && (
+                <Card className="shadow-lg border-[#C9A96E]/30 overflow-hidden">
+                  {/* Calculator Header */}
+                  <div className="bg-gradient-to-r from-[#0B1E2D] to-[#132d42] p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-white">
+                        <Calculator className="h-5 w-5 text-[#C9A96E]" />
+                        <span className="font-heading font-bold text-lg">
+                          {lang === "ar" ? "حاسبة التكاليف" : "Cost Calculator"}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setShowCalculator(false)}
+                        className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                      >
+                        <X className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
+                    <p className="text-white/60 text-xs mt-1">
+                      {lang === "ar" ? "احسب التكلفة الإجمالية للإيجار" : "Calculate your total rental cost"}
+                    </p>
+                  </div>
+
+                  <CardContent className="p-5 space-y-5">
+                    {/* Monthly Rent Display */}
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-[#3ECFC0]/10 border border-[#3ECFC0]/20">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-[#3ECFC0]" />
+                        <span className="text-sm font-medium">{lang === "ar" ? "الإيجار الشهري" : "Monthly Rent"}</span>
+                      </div>
+                      <span className="font-bold text-[#3ECFC0]">{calcData.rent.toLocaleString()} {lang === "ar" ? "ر.س" : "SAR"}</span>
+                    </div>
+
+                    {/* Duration Slider */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-1.5 text-sm">
+                          <Calendar className="h-4 w-4 text-[#C9A96E]" />
+                          {lang === "ar" ? "مدة الإيجار" : "Rental Duration"}
+                        </Label>
+                        <Badge variant="secondary" className="bg-[#C9A96E]/10 text-[#C9A96E] border-[#C9A96E]/20">
+                          {calcMonths} {calcMonths === 1 ? (lang === "ar" ? "شهر" : "month") : (lang === "ar" ? "أشهر" : "months")}
+                        </Badge>
+                      </div>
+                      <Slider
+                        value={[calcMonths]}
+                        onValueChange={(v) => setCalcMonths(v[0])}
+                        min={1}
+                        max={12}
+                        step={1}
+                        className="py-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>1 {lang === "ar" ? "شهر" : "mo"}</span>
+                        <span>6 {lang === "ar" ? "أشهر" : "mo"}</span>
+                        <span>12 {lang === "ar" ? "شهر" : "mo"}</span>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Cost Breakdown */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold flex items-center gap-1.5">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                        {lang === "ar" ? "تفاصيل التكلفة" : "Cost Breakdown"}
+                      </h4>
+
+                      <div className="space-y-2.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            {lang === "ar" ? `الإيجار (${calcMonths} ${calcMonths === 1 ? "شهر" : "أشهر"})` : `Rent (${calcMonths} ${calcMonths === 1 ? "month" : "months"})`}
+                          </span>
+                          <span className="font-medium">{calcData.totalRent.toLocaleString()} {lang === "ar" ? "ر.س" : "SAR"}</span>
                         </div>
-                        <div className="space-y-2">
-                          <Label>{lang === "ar" ? "تاريخ المعاينة" : "Inspection Date"}</Label>
-                          <Input type="date" value={inspectionDate} onChange={(e) => setInspectionDate(e.target.value)} min={new Date().toISOString().split('T')[0]} dir="ltr" />
+
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            {lang === "ar" ? `التأمين (${depositPercent}%)` : `Deposit (${depositPercent}%)`}
+                          </span>
+                          <span className="font-medium">{calcData.deposit.toLocaleString()} {lang === "ar" ? "ر.س" : "SAR"}</span>
                         </div>
-                        <div className="space-y-2">
-                          <Label>{lang === "ar" ? "الوقت المفضل" : "Preferred Time"}</Label>
-                          <Select value={inspectionTime} onValueChange={setInspectionTime}>
-                            <SelectTrigger><SelectValue placeholder={lang === "ar" ? "اختر الوقت" : "Select time"} /></SelectTrigger>
-                            <SelectContent>
-                              {timeSlots.map(slot => (
-                                <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            {lang === "ar" ? `رسوم الخدمة (${serviceFeePercent}%)` : `Service Fee (${serviceFeePercent}%)`}
+                          </span>
+                          <span className="font-medium">{calcData.serviceFee.toLocaleString()} {lang === "ar" ? "ر.س" : "SAR"}</span>
                         </div>
-                        <div className="space-y-2">
-                          <Label>{lang === "ar" ? "ملاحظات" : "Notes"}</Label>
-                          <Textarea value={inspectionNotes} onChange={(e) => setInspectionNotes(e.target.value)} placeholder={lang === "ar" ? "أي ملاحظات إضافية..." : "Any additional notes..."} />
+
+                        <Separator className="my-1" />
+
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{lang === "ar" ? "المجموع الفرعي" : "Subtotal"}</span>
+                          <span className="font-medium">{calcData.subtotal.toLocaleString()} {lang === "ar" ? "ر.س" : "SAR"}</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            <Percent className="h-3 w-3" />
+                            {lang === "ar" ? `ضريبة القيمة المضافة (${vatPercent}%)` : `VAT (${vatPercent}%)`}
+                          </span>
+                          <span className="font-medium">{calcData.vat.toLocaleString(undefined, { maximumFractionDigits: 0 })} {lang === "ar" ? "ر.س" : "SAR"}</span>
                         </div>
                       </div>
-                      <DialogFooter>
-                        <Button
-                          className="w-full bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] font-semibold"
-                          disabled={createInspection.isPending || !inspectionDate || !inspectionTime || !inspectionName || !inspectionPhone}
-                          onClick={() => {
-                            createInspection.mutate({
-                              propertyId: id,
-                              requestedDate: inspectionDate,
-                              requestedTimeSlot: inspectionTime,
-                              fullName: inspectionName,
-                              phone: inspectionPhone,
-                              notes: inspectionNotes,
-                            });
-                          }}
-                        >
-                          {createInspection.isPending 
-                            ? (lang === "ar" ? "جاري الإرسال..." : "Submitting...") 
-                            : (lang === "ar" ? "إرسال طلب المعاينة" : "Submit Inspection Request")}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </CardContent>
-              </Card>
+                    </div>
+
+                    {/* Grand Total */}
+                    <div className="p-4 rounded-xl bg-gradient-to-r from-[#0B1E2D] to-[#132d42] text-white">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80 text-sm">{lang === "ar" ? "الإجمالي الكلي" : "Grand Total"}</span>
+                        <div className="text-end">
+                          <div className="text-2xl font-bold font-heading text-[#3ECFC0]">
+                            {calcData.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                          </div>
+                          <div className="text-xs text-white/50">{lang === "ar" ? "ريال سعودي" : "SAR"}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Back to booking button */}
+                    <Button
+                      className="w-full bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] btn-animate border-0 font-semibold"
+                      size="lg"
+                      onClick={() => {
+                        if (!isAuthenticated) { toast.error(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please sign in first"); return; }
+                        setLocation(`/book/${id}`);
+                      }}
+                    >
+                      {prop.instantBook ? t("property.bookNow") : t("property.requestBooking")}
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      className="w-full text-muted-foreground"
+                      onClick={() => setShowCalculator(false)}
+                    >
+                      <ArrowLeft className="h-4 w-4 me-2" />
+                      {lang === "ar" ? "العودة لتفاصيل السعر" : "Back to pricing details"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Property Manager Card */}
               {(prop as any).manager && (
-                <Card className="mt-4 shadow-md border-[#3ECFC0]/20">
+                <Card className="shadow-md border-[#3ECFC0]/20">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-4 mb-3">
                       {(prop as any).manager.photoUrl ? (

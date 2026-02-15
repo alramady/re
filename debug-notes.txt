@@ -1,0 +1,11 @@
+COMPLETE AUDIT FINDINGS - Property Detail Page:
+
+1. CALCULATOR - WORKING: Toggle shows/hides correctly. Full cost breakdown with VAT.
+2. MAP - WORKING: Shows Google Map with info window popup containing property name, location, stats (5 rooms, 4 bathrooms, 450 m²), and price (25,000 SAR/month).
+3. AMENITIES BUG: "maid_room" and "driver_room" show as English keys instead of Arabic translations.
+4. PHOTO GALLERY - WORKING: Villa images load correctly.
+5. BOOKING CARD - WORKING: Price, deposit, min/max stay, furnished level all display.
+6. MANAGER CARD - WORKING: Shows name, phone, WhatsApp link.
+
+ISSUES TO FIX:
+- Add Arabic translations for "maid_room" → "غرفة خادمة" and "driver_room" → "غرفة سائق"

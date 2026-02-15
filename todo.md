@@ -637,3 +637,21 @@
 - [x] Real-time preview before save
 - [x] Update avatar across Navbar and all profile references
 - [x] Tests verified (302 passing, avatar upload uses existing tested endpoints)
+
+## Full Platform Audit & Developer Documentation
+- [x] Audit database schema (30 tables) - validated relations, indexes, types
+- [x] Audit all API routers - validated input validation, error handling, auth guards
+- [x] Audit frontend pages - checked for dead routes, missing error states, loading states
+- [x] Audit auth flow - verified protected routes, role-based access, session handling
+- [x] Audit file upload & S3 storage - verified size limits, content types, cleanup
+- [x] Fix all identified issues from audit (amenity translations)
+- [x] Create comprehensive DEVELOPER_GUIDE.md with full architecture, code examples, API reference
+- [x] Run all tests and verify 0 errors (302 passing)
+- [ ] Save checkpoint, push to GitHub (in progress)
+
+## Property Detail Page Fixes (Feb 16)
+- [x] Fix map showing property info window (title, location, stats, price) on PropertyDetail page
+- [x] Fix finance calculator display - show on click toggle (replaces booking card)
+- [x] Hide the booking frame when calculator is active (toggle between views)
+- [x] Improve overall calculator UX (slider, cost breakdown, VAT, total)
+- [x] Fix amenity translations (maid_room → غرفة خادمة, driver_room → غرفة سائق)
