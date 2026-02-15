@@ -355,21 +355,56 @@ export default function TenantDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* User Avatar & Name with Upload */}
-                <div className="flex items-center gap-4 pb-4 border-b">
-                  <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-                    {user?.avatarUrl ? (
-                      <img src={user.avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover border-2 border-[#3ECFC0]/30" />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-[#3ECFC0]/10 flex items-center justify-center">
-                        <User className="h-8 w-8 text-[#3ECFC0]" />
+                {/* Avatar Upload Section */}
+                <div className="bg-muted/30 rounded-xl p-6 border border-dashed border-[#3ECFC0]/30">
+                  <h4 className="font-semibold mb-4 flex items-center gap-2 text-sm">
+                    <Camera className="h-4 w-4 text-[#3ECFC0]" />
+                    {lang === "ar" ? "الصورة الشخصية" : "Profile Photo"}
+                  </h4>
+                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                    {/* Avatar Preview */}
+                    <div className="relative group cursor-pointer shrink-0" onClick={() => avatarInputRef.current?.click()}>
+                      {user?.avatarUrl ? (
+                        <img src={user.avatarUrl} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#3ECFC0]/20 shadow-lg" />
+                      ) : (
+                        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#3ECFC0]/20 to-[#3ECFC0]/5 flex items-center justify-center border-4 border-dashed border-[#3ECFC0]/30">
+                          <User className="h-10 w-10 text-[#3ECFC0]/60" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        {uploadingAvatar ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Camera className="h-6 w-6 text-white" />}
                       </div>
-                    )}
-                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      {uploadingAvatar ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+                      <input ref={avatarInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleAvatarUpload} />
                     </div>
-                    <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                    {/* Upload Info & Actions */}
+                    <div className="flex-1 text-center sm:text-start space-y-3">
+                      <div>
+                        <p className="text-sm font-medium">{lang === "ar" ? "اضغط على الصورة لتحديثها" : "Click the photo to update it"}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{lang === "ar" ? "JPG أو PNG أو WebP — الحد الأقصى 5 ميجابايت" : "JPG, PNG or WebP — max 5MB"}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar}>
+                          {uploadingAvatar ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
+                          {lang === "ar" ? "رفع صورة جديدة" : "Upload New Photo"}
+                        </Button>
+                        {user?.avatarUrl && (
+                          <Button size="sm" variant="ghost" className="gap-1.5 text-destructive hover:text-destructive" onClick={async () => {
+                            try {
+                              await updateProfile.mutateAsync({ avatarUrl: "" });
+                              toast.success(lang === "ar" ? "تم إزالة الصورة" : "Photo removed");
+                            } catch { toast.error(lang === "ar" ? "فشل إزالة الصورة" : "Failed to remove photo"); }
+                          }}>
+                            <XCircle className="h-3.5 w-3.5" />
+                            {lang === "ar" ? "إزالة" : "Remove"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                </div>
+
+                {/* User Info & Profile Completion */}
+                <div className="flex items-center gap-4 pb-4 border-b">
                   <div className="flex-1">
                     <h3 className="text-xl font-heading font-bold">{user?.name}</h3>
                     <p className="text-sm text-muted-foreground">{user?.email}</p>

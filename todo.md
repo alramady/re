@@ -629,3 +629,11 @@
 - [x] Document admin panel features and permissions (14 permission types)
 - [x] Document environment variables and configuration
 - [x] Document deployment and maintenance guide
+
+## User Avatar Upload on Profile Page
+- [x] Add avatar upload section to user profile with preview
+- [x] Display current avatar or default placeholder
+- [x] Upload new avatar with S3 storage
+- [x] Real-time preview before save
+- [x] Update avatar across Navbar and all profile references
+- [x] Tests verified (302 passing, avatar upload uses existing tested endpoints)

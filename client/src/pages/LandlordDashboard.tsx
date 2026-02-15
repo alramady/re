@@ -13,9 +13,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   Building2, Calendar, CreditCard, Wrench, BarChart3, Plus,
-  Loader2, Eye, CheckCircle, XCircle, Clock, MessageSquare, MapPin
+  Loader2, Eye, CheckCircle, XCircle, Clock, MessageSquare, MapPin,
+  User, Camera
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
@@ -35,6 +36,30 @@ export default function LandlordDashboard() {
   const [rejectReason, setRejectReason] = useState("");
   const [maintenanceDialog, setMaintenanceDialog] = useState<{ id: number; status: string } | null>(null);
   const [maintenanceResponse, setMaintenanceResponse] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const uploadFile = trpc.upload.file.useMutation();
+  const updateProfile = trpc.auth.updateProfile.useMutation({
+    onSuccess: () => { toast.success(lang === "ar" ? "تم حفظ الملف الشخصي" : "Profile saved"); },
+  });
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error(lang === "ar" ? "حجم الصورة يجب أن يكون أقل من 5 ميجا" : "Image must be under 5MB"); return; }
+    setUploadingAvatar(true);
+    try {
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+      const result = await uploadFile.mutateAsync({ base64, filename: file.name, contentType: file.type });
+      await updateProfile.mutateAsync({ avatarUrl: result.url });
+      toast.success(lang === "ar" ? "تم رفع الصورة بنجاح" : "Photo uploaded successfully");
+    } catch { toast.error(lang === "ar" ? "فشل رفع الصورة" : "Failed to upload photo"); }
+    setUploadingAvatar(false);
+  };
 
   const updateBooking = trpc.booking.updateStatus.useMutation({
     onSuccess: () => {
@@ -120,6 +145,7 @@ export default function LandlordDashboard() {
             <TabsTrigger value="bookings" className="gap-1.5"><Calendar className="h-4 w-4" />{lang === "ar" ? "طلبات الحجز" : "Booking Requests"}</TabsTrigger>
             <TabsTrigger value="payments" className="gap-1.5"><CreditCard className="h-4 w-4" />{t("dashboard.myPayments")}</TabsTrigger>
             <TabsTrigger value="maintenance" className="gap-1.5"><Wrench className="h-4 w-4" />{t("dashboard.maintenance")}</TabsTrigger>
+            <TabsTrigger value="profile" className="gap-1.5"><User className="h-4 w-4" />{lang === "ar" ? "الملف الشخصي" : "Profile"}</TabsTrigger>
           </TabsList>
 
           {/* Properties */}
@@ -281,6 +307,76 @@ export default function LandlordDashboard() {
                 <p className="text-muted-foreground">{lang === "ar" ? "لا توجد طلبات صيانة" : "No maintenance requests"}</p>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-heading flex items-center gap-2">
+                  <User className="h-5 w-5 text-[#3ECFC0]" />
+                  {lang === "ar" ? "الملف الشخصي" : "Personal Profile"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Avatar Upload Section */}
+                <div className="bg-muted/30 rounded-xl p-6 border border-dashed border-[#3ECFC0]/30">
+                  <h4 className="font-semibold mb-4 flex items-center gap-2 text-sm">
+                    <Camera className="h-4 w-4 text-[#3ECFC0]" />
+                    {lang === "ar" ? "الصورة الشخصية" : "Profile Photo"}
+                  </h4>
+                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                    <div className="relative group cursor-pointer shrink-0" onClick={() => avatarInputRef.current?.click()}>
+                      {user?.avatarUrl ? (
+                        <img src={user.avatarUrl} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#3ECFC0]/20 shadow-lg" />
+                      ) : (
+                        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#3ECFC0]/20 to-[#3ECFC0]/5 flex items-center justify-center border-4 border-dashed border-[#3ECFC0]/30">
+                          <User className="h-10 w-10 text-[#3ECFC0]/60" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        {uploadingAvatar ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Camera className="h-6 w-6 text-white" />}
+                      </div>
+                      <input ref={avatarInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleAvatarUpload} />
+                    </div>
+                    <div className="flex-1 text-center sm:text-start space-y-3">
+                      <div>
+                        <p className="text-sm font-medium">{lang === "ar" ? "اضغط على الصورة لتحديثها" : "Click the photo to update it"}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{lang === "ar" ? "JPG أو PNG أو WebP — الحد الأقصى 5 ميجابايت" : "JPG, PNG or WebP — max 5MB"}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar}>
+                          {uploadingAvatar ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
+                          {lang === "ar" ? "رفع صورة جديدة" : "Upload New Photo"}
+                        </Button>
+                        {user?.avatarUrl && (
+                          <Button size="sm" variant="ghost" className="gap-1.5 text-destructive hover:text-destructive" onClick={async () => {
+                            try {
+                              await updateProfile.mutateAsync({ avatarUrl: "" });
+                              toast.success(lang === "ar" ? "تم إزالة الصورة" : "Photo removed");
+                            } catch { toast.error(lang === "ar" ? "فشل إزالة الصورة" : "Failed to remove photo"); }
+                          }}>
+                            <XCircle className="h-3.5 w-3.5" />
+                            {lang === "ar" ? "إزالة" : "Remove"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* User Info */}
+                <div className="flex items-center gap-4 pb-4 border-b">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-heading font-bold">{user?.name}</h3>
+                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline">{lang === "ar" ? "مالك عقار" : "Landlord"}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
