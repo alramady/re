@@ -342,12 +342,12 @@
 - [x] PayPal payment flow ready (requires PayPal credentials to test live)
 
 ## Property Manager (Agent) Profile Feature
-- [ ] Agent public profile page (/agent/:id) — photo, name, title, phone, bio, assigned properties
-- [ ] Agent info overlay on property cards (photo + name like realestate.com.au)
-- [ ] Agent info sidebar on property detail page (photo, name, phone, enquire/call)
-- [ ] Admin management page for property managers (CRUD + assign to properties)
-- [ ] tRPC procedure: getManagerWithProperties (public)
-- [ ] Push to GitHub and redeploy on Railway
+- [x] Agent public profile page (/agent/:id) — photo, name, title, phone, bio, assigned properties
+- [x] Agent info overlay on property cards (photo + name like realestate.com.au)
+- [x] Agent info sidebar on property detail page (photo, name, phone, enquire/call)
+- [x] Admin management page for property managers (CRUD + assign to properties)
+- [x] tRPC procedure: getManagerWithProperties (public)
+- [x] Push to GitHub and redeploy on Railway
 
 ## Major Platform Upgrade v2
 ### Security Deposit = 10% of Rent
@@ -409,6 +409,18 @@
 - [ ] Add MySQL database on Railway
 - [ ] Set all environment variables
 - [ ] Deploy and verify
-- [ ] Agent self-service: email-based token login for managers to edit their own profile
-- [ ] Agent edit profile page (/agent/edit/:token) — photo, bio, phone, whatsapp
-- [ ] Admin sends profile edit link to manager via email field
+- [x] Agent self-service: email-based token login for managers to edit their own profile
+- [x] Agent edit profile page (/agent/edit/:token) — photo, bio, phone, whatsapp
+- [x] Admin sends profile edit link to manager via email field
+
+## Booking Flow Improvements
+- [ ] Limit rental duration to 1 or 2 months only (remove 3-6 options)
+- [ ] Replace native date input with elegant custom date picker
+- [ ] Remove payment from booking step — booking is request only (needs admin approval first)
+- [ ] Add payment page/step after admin approval: PayPal, Apple Pay, Google Pay, Cash (UI ready, connect later)
+- [ ] Push to GitHub and redeploy on Railway
+
+## Amenities & Demo Fixes
+- [ ] Fix amenities to show Arabic names when in Arabic mode (gym→نادي رياضي, etc.)
+- [ ] Create demo property manager profile in database
+- [ ] Push all updates to GitHub and Railway

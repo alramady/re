@@ -28,7 +28,19 @@ import { toast } from "sonner";
 const amenityIcons: Record<string, any> = {
   wifi: Wifi, parking: Car, gym: Dumbbell, security: Shield,
   ac: Wind, water: Droplets, electricity: Zap, gas: Flame,
-  tv: Tv, laundry: Shirt,
+  tv: Tv, laundry: Shirt, elevator: CheckCircle, pool: Droplets,
+  balcony: CheckCircle, furnished: CheckCircle, kitchen: CheckCircle,
+};
+
+const amenityAr: Record<string, string> = {
+  wifi: "واي فاي", parking: "موقف سيارات", gym: "نادي رياضي",
+  security: "حراسة أمنية", ac: "تكييف", water: "مياه",
+  electricity: "كهرباء", gas: "غاز", tv: "تلفزيون",
+  laundry: "غسيل", elevator: "مصعد", pool: "مسبح",
+  balcony: "شرفة", furnished: "مفروش", kitchen: "مطبخ",
+  garden: "حديقة", storage: "مستودع", "maid room": "غرفة خادمة",
+  "central ac": "تكييف مركزي", "satellite/cable": "قنوات فضائية",
+  internet: "إنترنت", maintenance: "صيانة",
 };
 
 export default function PropertyDetail() {
@@ -257,11 +269,13 @@ export default function PropertyDetail() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {prop.amenities.map((amenity, i) => {
-                      const Icon = amenityIcons[amenity.toLowerCase()] || CheckCircle;
+                      const key = amenity.toLowerCase();
+                      const Icon = amenityIcons[key] || CheckCircle;
+                      const label = lang === "ar" ? (amenityAr[key] || amenity) : amenity;
                       return (
                         <div key={i} className="flex items-center gap-2 text-sm">
                           <Icon className="h-4 w-4 text-primary shrink-0" />
-                          <span>{amenity}</span>
+                          <span>{label}</span>
                         </div>
                       );
                     })}
@@ -423,12 +437,12 @@ export default function PropertyDetail() {
               </Card>
 
               {/* Property Manager Card */}
-              {(prop as any).managerName && (
+              {(prop as any).manager && (
                 <Card className="mt-4 shadow-md border-[#3ECFC0]/20">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-4 mb-3">
-                      {(prop as any).managerPhotoUrl ? (
-                        <img src={(prop as any).managerPhotoUrl} alt="" className="w-14 h-14 rounded-full object-cover border-2 border-[#3ECFC0]/30" />
+                      {(prop as any).manager.photoUrl ? (
+                        <img src={(prop as any).manager.photoUrl} alt="" className="w-14 h-14 rounded-full object-cover border-2 border-[#3ECFC0]/30" />
                       ) : (
                         <div className="w-14 h-14 rounded-full bg-[#3ECFC0]/10 flex items-center justify-center">
                           <UserCog className="h-6 w-6 text-[#3ECFC0]" />
@@ -436,27 +450,30 @@ export default function PropertyDetail() {
                       )}
                       <div>
                         <h4 className="font-semibold font-heading">
-                          {lang === "ar" ? ((prop as any).managerNameAr || (prop as any).managerName) : (prop as any).managerName}
+                          {lang === "ar" ? ((prop as any).manager.nameAr || (prop as any).manager.name) : (prop as any).manager.name}
                         </h4>
                         <p className="text-xs text-muted-foreground">
-                          {lang === "ar" ? ((prop as any).managerTitleAr || "مدير العقار") : ((prop as any).managerTitle || "Property Manager")}
+                          {lang === "ar" ? ((prop as any).manager.titleAr || "مدير العقار") : ((prop as any).manager.title || "Property Manager")}
                         </p>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      {(prop as any).managerPhone && (
-                        <a href={`tel:${(prop as any).managerPhone}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-[#3ECFC0] transition-colors">
+                      {(prop as any).manager.phone && (
+                        <a href={`tel:${(prop as any).manager.phone}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-[#3ECFC0] transition-colors">
                           <Phone className="h-4 w-4" />
-                          <span dir="ltr">{(prop as any).managerPhone}</span>
+                          <span dir="ltr">{(prop as any).manager.phone}</span>
                         </a>
                       )}
-                      {(prop as any).managerWhatsapp && (
-                        <a href={`https://wa.me/${(prop as any).managerWhatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-green-500 transition-colors">
+                      {(prop as any).manager.whatsapp && (
+                        <a href={`https://wa.me/${(prop as any).manager.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-green-500 transition-colors">
                           <MessageSquare className="h-4 w-4" />
                           <span>{lang === "ar" ? "تواصل عبر واتساب" : "Chat on WhatsApp"}</span>
                         </a>
                       )}
                     </div>
+                    <a href={`/agent/${(prop as any).manager.id}`} className="mt-3 block text-center text-sm text-[#3ECFC0] hover:underline">
+                      {lang === "ar" ? "عرض الملف الشخصي" : "View Profile"}
+                    </a>
                   </CardContent>
                 </Card>
               )}

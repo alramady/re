@@ -113,24 +113,37 @@ export default function TenantDashboard() {
             ) : bookings.data && bookings.data.length > 0 ? (
               <div className="space-y-3">
                 {bookings.data.map((b) => (
-                  <Card key={b.id} className="card-hover transition-shadow cursor-pointer" onClick={() => setLocation(`/property/${b.propertyId}`)}>
-                    <CardContent className="p-4 flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold">{lang === "ar" ? `حجز #${b.id}` : `Booking #${b.id}`}</span>
-                          {statusBadge(b.status, lang)}
+                  <Card key={b.id} className="card-hover transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between cursor-pointer" onClick={() => setLocation(`/property/${b.propertyId}`)}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold">{lang === "ar" ? `حجز #${b.id}` : `Booking #${b.id}`}</span>
+                            {statusBadge(b.status, lang)}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(b.moveInDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")} — {new Date(b.moveOutDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
+                          </div>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {b.durationMonths} {t("booking.months")} • {Number(b.monthlyRent).toLocaleString()} {t("payment.sar")}{t("property.perMonth")}
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {new Date(b.moveInDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")} — {new Date(b.moveOutDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          {b.durationMonths} {t("booking.months")} • {Number(b.monthlyRent).toLocaleString()} {t("payment.sar")}{t("property.perMonth")}
+                        <div className="text-end">
+                          <div className="font-bold text-primary">{Number(b.totalAmount).toLocaleString()} {t("payment.sar")}</div>
+                          <div className="text-xs text-muted-foreground">{t("common.total")}</div>
                         </div>
                       </div>
-                      <div className="text-end">
-                        <div className="font-bold text-primary">{Number(b.totalAmount).toLocaleString()} {t("payment.sar")}</div>
-                        <div className="text-xs text-muted-foreground">{t("common.total")}</div>
-                      </div>
+                      {b.status === "approved" && (
+                        <div className="mt-3 pt-3 border-t">
+                          <Button
+                            className="w-full bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] font-semibold border-0"
+                            onClick={(e) => { e.stopPropagation(); setLocation(`/pay/${b.id}`); }}
+                          >
+                            <CreditCard className="h-4 w-4 me-2" />
+                            {lang === "ar" ? "ادفع الآن" : "Pay Now"}
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

@@ -143,7 +143,20 @@ export async function searchProperties(filters: {
     .orderBy(desc(properties.createdAt))
     .limit(filters.limit ?? 20).offset(filters.offset ?? 0);
   const countResult = await db.select({ count: sql<number>`count(*)` }).from(properties).where(where!);
-  return { items, total: countResult[0]?.count ?? 0 };
+  // Attach manager info to each property
+  const itemsWithManager = await Promise.all(items.map(async (item) => {
+    const assignment = await db.select().from(propertyManagerAssignments)
+      .where(eq(propertyManagerAssignments.propertyId, item.id)).limit(1);
+    if (assignment.length > 0) {
+      const mgr = await db.select().from(propertyManagers)
+        .where(eq(propertyManagers.id, assignment[0].managerId)).limit(1);
+      if (mgr.length > 0) {
+        return { ...item, managerName: mgr[0].name, managerNameAr: mgr[0].nameAr, managerPhotoUrl: mgr[0].photoUrl };
+      }
+    }
+    return item;
+  }));
+  return { items: itemsWithManager, total: countResult[0]?.count ?? 0 };
 }
 
 export async function getAllProperties(limit = 50, offset = 0, status?: string) {

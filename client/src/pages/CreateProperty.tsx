@@ -108,8 +108,21 @@ export default function CreateProperty() {
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
-  const amenityOptions = ["WiFi", "Parking", "Gym", "Pool", "Security", "Elevator", "Balcony", "Garden", "Storage", "Maid Room", "Central AC", "Satellite/Cable"];
-  const utilityOptions = ["Water", "Electricity", "Gas", "Internet", "Maintenance"];
+  const amenityOptionsList = [
+    { key: "WiFi", ar: "واي فاي" }, { key: "Parking", ar: "موقف سيارات" },
+    { key: "Gym", ar: "نادي رياضي" }, { key: "Pool", ar: "مسبح" },
+    { key: "Security", ar: "حراسة أمنية" }, { key: "Elevator", ar: "مصعد" },
+    { key: "Balcony", ar: "شرفة" }, { key: "Garden", ar: "حديقة" },
+    { key: "Storage", ar: "مستودع" }, { key: "Maid Room", ar: "غرفة خادمة" },
+    { key: "Central AC", ar: "تكييف مركزي" }, { key: "Satellite/Cable", ar: "قنوات فضائية" },
+    { key: "AC", ar: "تكييف" }, { key: "Laundry", ar: "غسيل" },
+    { key: "Furnished", ar: "مفروش" }, { key: "Kitchen", ar: "مطبخ" }, { key: "TV", ar: "تلفزيون" },
+  ];
+  const utilityOptionsList = [
+    { key: "Water", ar: "مياه" }, { key: "Electricity", ar: "كهرباء" },
+    { key: "Gas", ar: "غاز" }, { key: "Internet", ar: "إنترنت" },
+    { key: "Maintenance", ar: "صيانة" },
+  ];
 
   const toggleAmenity = (a: string) => {
     setForm(prev => ({
@@ -262,18 +275,18 @@ export default function CreateProperty() {
             <CardHeader><CardTitle>{t("property.amenities")}</CardTitle></CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {amenityOptions.map(a => (
-                  <Button key={a} variant={form.amenities.includes(a) ? "default" : "outline"} size="sm" onClick={() => toggleAmenity(a)}>
-                    {a}
+                {amenityOptionsList.map(a => (
+                  <Button key={a.key} variant={form.amenities.includes(a.key) ? "default" : "outline"} size="sm" onClick={() => toggleAmenity(a.key)}>
+                    {lang === "ar" ? a.ar : a.key}
                   </Button>
                 ))}
               </div>
               <Separator className="my-4" />
               <Label className="mb-2 block">{t("property.utilities")}</Label>
               <div className="flex flex-wrap gap-2">
-                {utilityOptions.map(u => (
-                  <Button key={u} variant={form.utilitiesIncluded.includes(u) ? "default" : "outline"} size="sm" onClick={() => toggleUtility(u)}>
-                    {u}
+                {utilityOptionsList.map(u => (
+                  <Button key={u.key} variant={form.utilitiesIncluded.includes(u.key) ? "default" : "outline"} size="sm" onClick={() => toggleUtility(u.key)}>
+                    {lang === "ar" ? u.ar : u.key}
                   </Button>
                 ))}
               </div>
