@@ -95,6 +95,12 @@ export default function AdminDashboard() {
               {lang === "ar" ? "طوارئ الصيانة" : "Emergency Maintenance"}
             </Button>
           </Link>
+          <Link href="/admin/analytics">
+            <Button variant="outline" className="gap-2 border-[#3ECFC0] text-[#3ECFC0] hover:bg-[#3ECFC0]/10">
+              <BarChart3 className="h-4 w-4" />
+              {lang === "ar" ? "التحليلات" : "Analytics"}
+            </Button>
+          </Link>
           <Link href="/admin/settings">
             <Button variant="outline" className="gap-2">
               <BarChart3 className="h-4 w-4" />

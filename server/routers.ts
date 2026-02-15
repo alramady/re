@@ -698,6 +698,37 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return db.getAllBookings(input.limit, input.offset);
       }),
+
+    analytics: adminProcedure
+      .input(z.object({ months: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        const months = input?.months ?? 12;
+        const [
+          bookingsByMonth, revenueByMonth, userRegistrations,
+          propertiesByType, propertiesByCity, bookingStatusDist,
+          revenueByMethod, topProperties, serviceRequests,
+          maintenanceSummary, occupancy, recentActivity
+        ] = await Promise.all([
+          db.getBookingsByMonth(months),
+          db.getRevenueByMonth(months),
+          db.getUserRegistrationsByMonth(months),
+          db.getPropertiesByType(),
+          db.getPropertiesByCity(),
+          db.getBookingStatusDistribution(),
+          db.getRevenueByPaymentMethod(),
+          db.getTopProperties(10),
+          db.getServiceRequestsSummary(),
+          db.getMaintenanceSummary(),
+          db.getOccupancyRate(),
+          db.getRecentActivity(20),
+        ]);
+        return {
+          bookingsByMonth, revenueByMonth, userRegistrations,
+          propertiesByType, propertiesByCity, bookingStatusDist,
+          revenueByMethod, topProperties, serviceRequests,
+          maintenanceSummary, occupancy, recentActivity,
+        };
+      }),
   }),
 
   // Site Settings (CMS)
@@ -1574,6 +1605,81 @@ export const appRouter = router({
         const buffer = Buffer.from(input.base64, 'base64');
         const { url } = await storagePut(key, buffer, input.contentType);
         return { url };
+      }),
+  }),
+
+  // ─── Reviews ────────────────────────────────────────────────────────
+  reviews: router({
+    byProperty: publicProcedure
+      .input(z.object({ propertyId: z.number() }))
+      .query(async ({ input }) => {
+        const [reviews, rating] = await Promise.all([
+          db.getReviewsByProperty(input.propertyId),
+          db.getPropertyAverageRating(input.propertyId),
+        ]);
+        return { reviews, averageRating: rating.average, reviewCount: rating.count };
+      }),
+
+    submit: protectedProcedure
+      .input(z.object({
+        propertyId: z.number(),
+        bookingId: z.number(),
+        rating: z.number().min(1).max(5),
+        comment: z.string().optional(),
+        commentAr: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify booking belongs to user and is completed
+        const booking = await db.getBookingById(input.bookingId);
+        if (!booking) throw new Error("Booking not found");
+        if (booking.tenantId !== ctx.user.id) throw new Error("Unauthorized");
+        if (booking.status !== "completed") throw new Error("Can only review completed stays");
+        // Check if already reviewed
+        const alreadyReviewed = await db.hasUserReviewedBooking(ctx.user.id, input.bookingId);
+        if (alreadyReviewed) throw new Error("Already reviewed this booking");
+        const id = await db.createReview({
+          propertyId: input.propertyId,
+          tenantId: ctx.user.id,
+          bookingId: input.bookingId,
+          rating: input.rating,
+          comment: input.comment,
+          commentAr: input.commentAr,
+        });
+        return { success: true, id };
+      }),
+
+    myReviews: protectedProcedure.query(async ({ ctx }) => {
+      return db.getReviewsByTenant(ctx.user.id);
+    }),
+
+    canReview: protectedProcedure
+      .input(z.object({ bookingId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const booking = await db.getBookingById(input.bookingId);
+        if (!booking || booking.tenantId !== ctx.user.id || booking.status !== "completed") return { canReview: false };
+        const alreadyReviewed = await db.hasUserReviewedBooking(ctx.user.id, input.bookingId);
+        return { canReview: !alreadyReviewed };
+      }),
+
+    // Admin
+    all: adminProcedure
+      .input(z.object({ limit: z.number().optional(), offset: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        return db.getAllReviews(input?.limit, input?.offset);
+      }),
+
+    togglePublished: adminProcedure
+      .input(z.object({ id: z.number(), isPublished: z.boolean() }))
+      .mutation(async ({ input }) => {
+        await db.updateReviewPublished(input.id, input.isPublished);
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteReview(input.id);
+        return { success: true };
       }),
   }),
 });

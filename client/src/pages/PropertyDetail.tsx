@@ -321,6 +321,71 @@ export default function PropertyDetail() {
                 />
               </CardContent>
             </Card>
+            {/* Reviews Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-[#C9A96E]" />
+                    {lang === "ar" ? "التقييمات والمراجعات" : "Ratings & Reviews"}
+                  </span>
+                  {reviews.data && reviews.data.avgRating > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-2xl font-bold">{Number(reviews.data.avgRating).toFixed(1)}</span>
+                      <div className="flex">
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} className={`h-4 w-4 ${s <= Math.round(Number(reviews.data?.avgRating ?? 0)) ? 'fill-[#C9A96E] text-[#C9A96E]' : 'text-muted-foreground/30'}`} />
+                        ))}
+                      </div>
+                      <span className="text-sm text-muted-foreground">({reviews.data.reviews.length})</span>
+                    </div>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {reviews.data && reviews.data.reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {reviews.data.reviews.map((r: any) => (
+                      <div key={r.id} className="p-4 rounded-lg bg-muted/50 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {r.tenantAvatar ? (
+                              <img src={r.tenantAvatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+                            ) : (
+                              <div className="h-8 w-8 rounded-full bg-[#3ECFC0]/20 flex items-center justify-center text-sm font-bold text-[#3ECFC0]">
+                                {(lang === "ar" ? (r.tenantNameAr || r.tenantName) : r.tenantName)?.charAt(0) ?? "?"}
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-medium text-sm">{lang === "ar" ? (r.tenantNameAr || r.tenantName) : r.tenantName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(r.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US", { year: "numeric", month: "short", day: "numeric" })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex">
+                            {[1,2,3,4,5].map(s => (
+                              <Star key={s} className={`h-3.5 w-3.5 ${s <= r.rating ? 'fill-[#C9A96E] text-[#C9A96E]' : 'text-muted-foreground/30'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        {(lang === "ar" ? (r.commentAr || r.comment) : r.comment) && (
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {lang === "ar" ? (r.commentAr || r.comment) : r.comment}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Star className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                    <p>{lang === "ar" ? "لا توجد تقييمات بعد" : "No reviews yet"}</p>
+                    <p className="text-xs mt-1">{lang === "ar" ? "كن أول من يقيم هذا العقار" : "Be the first to review this property"}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar - Booking card */}

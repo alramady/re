@@ -500,7 +500,7 @@
 - [x] PDPL cookie consent banner (bilingual, stores preference in localStorage)
 - [x] Booking history timeline in tenant profile (status steps with dates)
 - [x] Arabic amenity name translations (gym→نادي رياضي, pool→مسبح, etc.)
-- [ ] Push all updates to GitHub
+- [x] Push all updates to GitHub
 
 ## Services Management System
 - [x] Create services table (nameAr, nameEn, descAr, descEn, price, category, isActive, icon)
@@ -520,3 +520,32 @@
 - [x] Status updates sent as messages to tenant (in-app notification)
 - [x] Case closure workflow with resolution summary
 - [x] Email notification to tenant on status changes and closure
+
+## Rebrand Arabic Name
+- [x] Change Arabic name from "الذكي Monthly Key" to "المفتاح الشهري / Monthly Key"
+- [x] Fix hero title text
+- [x] Fix chatbot name to "المفتاح الشهري الذكي"
+- [x] Update all Arabic references across the platform
+
+## Admin Analytics Dashboard
+- [x] Create analytics dashboard page with charts (bookings, revenue, users)
+- [x] Booking statistics chart (monthly/weekly)
+- [x] Revenue chart (SAR)
+- [x] User growth chart
+- [x] Property occupancy stats
+- [x] Service request stats
+- [x] Emergency maintenance stats
+- [x] Add analytics route and admin nav link
+
+## Ratings & Reviews System
+- [x] Create reviews table (userId, propertyId, bookingId, rating, comment, isApproved)
+- [x] Tenant can rate property after stay
+- [x] Reviews display on property detail page
+- [x] Admin review moderation (approve/reject)
+- [x] Average rating on property cards
+
+## PWA Support
+- [x] Add manifest.json with app icons
+- [x] Add service worker for offline support
+- [x] Add PWA meta tags to index.html
+- [ ] Push all updates to GitHub

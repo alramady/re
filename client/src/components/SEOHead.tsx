@@ -11,7 +11,7 @@ interface SEOHeadProps {
 }
 
 const BASE_URL = "https://www.monthlykey.com";
-const SITE_NAME = "Monthly Key";
+const SITE_NAME = "المفتاح الشهري | Monthly Key";
 
 export default function SEOHead({
   title,
@@ -30,7 +30,7 @@ export default function SEOHead({
     const fullDesc =
       description ||
       descriptionAr ||
-      "Monthly Key - المنصة الرائدة للتأجير الشهري في المملكة العربية السعودية";
+      "المفتاح الشهري | Monthly Key - المنصة الرائدة للتأجير الشهري في المملكة العربية السعودية";
 
     const url = `${BASE_URL}${path}`;
 

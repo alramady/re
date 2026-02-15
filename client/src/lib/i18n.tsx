@@ -18,7 +18,7 @@ const translations = {
 
     // Hero
     "hero.title": "ابحث عن سكنك الشهري المثالي",
-    "hero.subtitle": "منصة Monthly Key تربط المستأجرين بأفضل العقارات للإيجار الشهري في المملكة العربية السعودية",
+    "hero.subtitle": "منصة المفتاح الشهري تربط المستأجرين بأفضل العقارات للإيجار الشهري في المملكة العربية السعودية",
     "hero.searchPlaceholder": "ابحث بالمدينة أو الحي...",
     "hero.cta": "ابدأ البحث",
 
@@ -220,8 +220,8 @@ const translations = {
     "auth.registerSubtitle": "أنشئ حسابك للبدء في استخدام المنصة",
 
     // Footer
-    "footer.about": "عن Monthly Key",
-    "footer.aboutText": "Monthly Key هي المنصة الرائدة للتأجير الشهري في المملكة العربية السعودية",
+    "footer.about": "عن المفتاح الشهري",
+    "footer.aboutText": "المفتاح الشهري هي المنصة الرائدة للتأجير الشهري في المملكة العربية السعودية",
     "footer.quickLinks": "روابط سريعة",
     "footer.support": "الدعم",
     "footer.contact": "اتصل بنا",
@@ -250,14 +250,14 @@ const translations = {
     "city.abha": "أبها",
 
     // AI Assistant
-    "ai.title": "Monthly Key الذكي",
-    "ai.subtitle": "مساعدك الذكي لكل ما يخص Monthly Key",
+    "ai.title": "المفتاح الشهري الذكي",
+    "ai.subtitle": "مساعدك الذكي لكل ما يخص المفتاح الشهري",
     "ai.placeholder": "اكتب سؤالك هنا...",
     "ai.send": "إرسال",
     "ai.newChat": "محادثة جديدة",
     "ai.history": "المحادثات السابقة",
     "ai.thinking": "يفكر...",
-    "ai.welcome": "مرحباً! أنا المساعد الذكي في Monthly Key. كيف أقدر أساعدك اليوم؟",
+    "ai.welcome": "مرحباً! أنا المساعد الذكي في المفتاح الشهري. كيف أقدر أساعدك اليوم؟",
     "ai.rateResponse": "قيّم الإجابة",
     "ai.rated": "شكراً لتقييمك!",
     "ai.error": "حدث خطأ، حاول مرة أخرى",
@@ -270,7 +270,7 @@ const translations = {
 
     // Knowledge Base Management
     "kb.title": "إدارة قاعدة المعرفة",
-    "kb.subtitle": "إدارة المقالات والأسئلة الشائعة للمساعد الذكي",
+    "kb.subtitle": "إدارة المقالات والأسئلة الشائعة للمفتاح الشهري الذكي",
     "kb.addArticle": "إضافة مقال جديد",
     "kb.editArticle": "تعديل المقال",
     "kb.deleteArticle": "حذف المقال",
