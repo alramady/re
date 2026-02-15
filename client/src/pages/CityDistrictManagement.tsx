@@ -12,11 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Link } from "wouter";
 import {
   Building2, MapPin, Plus, Pencil, Trash2, Search,
-  ArrowLeft, ToggleLeft, ToggleRight, Globe, Map
+  ArrowLeft, ToggleLeft, ToggleRight, Globe, Map, Upload, ImageIcon, X, Loader2
 } from "lucide-react";
 
 export default function CityDistrictManagement() {
@@ -130,6 +130,41 @@ export default function CityDistrictManagement() {
     },
     onError: (e) => toast.error(e.message),
   });
+
+  const uploadCityPhoto = trpc.cities.uploadPhoto.useMutation({
+    onError: (e) => toast.error(e.message),
+  });
+
+  const cityFileRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const handleCityPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(isAr ? "حجم الصورة يجب أن يكون أقل من 5 ميجابايت" : "Image must be under 5MB");
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        const result = await uploadCityPhoto.mutateAsync({
+          base64,
+          filename: file.name,
+          contentType: file.type,
+        });
+        setCityForm(p => ({ ...p, imageUrl: result.url }));
+        toast.success(isAr ? "تم رفع الصورة بنجاح" : "Photo uploaded successfully");
+        setUploadingPhoto(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setUploadingPhoto(false);
+    }
+    if (cityFileRef.current) cityFileRef.current.value = '';
+  };
 
   // ─── Helpers ────────────────────────────────────────────────
   const resetCityForm = () => setCityForm({
@@ -564,12 +599,66 @@ export default function CityDistrictManagement() {
               </div>
             </div>
             <div>
-              <Label>{t("cityMgmt.imageUrl")}</Label>
+              <Label>{isAr ? "صورة المدينة" : "City Photo"}</Label>
+              <input
+                ref={cityFileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCityPhotoUpload}
+              />
+              {cityForm.imageUrl ? (
+                <div className="relative mt-2 rounded-lg overflow-hidden border">
+                  <img src={cityForm.imageUrl} alt="" className="w-full h-40 object-cover" />
+                  <div className="absolute top-2 end-2 flex gap-1">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8 bg-white/90 hover:bg-white shadow"
+                      onClick={() => cityFileRef.current?.click()}
+                      disabled={uploadingPhoto}
+                    >
+                      {uploadingPhoto ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8 bg-white/90 hover:bg-red-50 shadow text-red-500"
+                      onClick={() => setCityForm(p => ({ ...p, imageUrl: '' }))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => !uploadingPhoto && cityFileRef.current?.click()}
+                  className="mt-2 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-[#3ECFC0] hover:bg-[#3ECFC0]/5 transition-colors"
+                >
+                  {uploadingPhoto ? (
+                    <Loader2 className="h-8 w-8 mx-auto text-[#3ECFC0] animate-spin mb-2" />
+                  ) : (
+                    <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    {uploadingPhoto
+                      ? (isAr ? "جاري رفع الصورة..." : "Uploading...")
+                      : (isAr ? "اضغط لرفع صورة المدينة" : "Click to upload city photo")}
+                  </p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    {isAr ? "الحد الأقصى 5 ميجابايت" : "Max 5MB"}
+                  </p>
+                </div>
+              )}
+              {/* Fallback: paste URL directly */}
               <Input
                 value={cityForm.imageUrl}
                 onChange={(e) => setCityForm(p => ({ ...p, imageUrl: e.target.value }))}
                 dir="ltr"
-                placeholder="https://..."
+                placeholder={isAr ? "أو الصق رابط الصورة هنا" : "Or paste image URL here"}
+                className="mt-2 text-xs"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

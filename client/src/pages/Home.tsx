@@ -405,7 +405,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ Cities Section with Hover Effects ═══ */}
+      {/* ═══ Cities Section with Photo Cards ═══ */}
       <section className="bg-[#f5f7fa] py-12 sm:py-20 section-transition">
         <div className="container">
           <ScrollSection>
@@ -418,26 +418,41 @@ export default function Home() {
           </ScrollSection>
           <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {(citiesQuery.data || []).slice(0, 6).map((city) => (
-              <Card
+              <div
                 key={city.id}
                 onClick={() => setLocation(`/search?city=${city.nameEn?.toLowerCase()}`)}
-                className="group cursor-pointer card-hover overflow-hidden bg-white border-border/50"
+                className="group cursor-pointer card-hover relative rounded-2xl overflow-hidden aspect-[4/3] shadow-md"
               >
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-[#3ECFC0]/10 flex items-center justify-center shrink-0 group-hover:bg-[#3ECFC0]/20 group-hover:scale-110 transition-all duration-500">
-                    <MapPin className="h-6 w-6 text-[#3ECFC0] group-hover:animate-pulse" />
+                {/* City Image or Placeholder */}
+                {city.imageUrl ? (
+                  <img
+                    src={city.imageUrl}
+                    alt={lang === "ar" ? city.nameAr : city.nameEn}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0B1E2D] to-[#1a3a4f] flex items-center justify-center">
+                    <MapPin className="h-16 w-16 text-[#3ECFC0]/30" />
                   </div>
-                  <div>
-                    <h3 className="font-heading font-semibold text-lg group-hover:text-[#3ECFC0] transition-colors duration-300">
-                      {lang === "ar" ? city.nameAr : city.nameEn}
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      {lang === "ar" ? city.region || "" : city.region || ""}
+                )}
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                {/* City info overlay */}
+                <div className="absolute bottom-0 start-0 end-0 p-5">
+                  <h3 className="font-heading font-bold text-xl text-white mb-1 group-hover:text-[#3ECFC0] transition-colors duration-300">
+                    {lang === "ar" ? city.nameAr : city.nameEn}
+                  </h3>
+                  {(city.region || city.regionAr) && (
+                    <p className="text-white/70 text-sm">
+                      {lang === "ar" ? (city.regionAr || city.region || "") : (city.region || "")}
                     </p>
-                  </div>
-                  <ArrowIcon className="h-5 w-5 text-muted-foreground/30 ms-auto group-hover:text-[#3ECFC0] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all duration-300" />
-                </CardContent>
-              </Card>
+                  )}
+                </div>
+                {/* Hover arrow indicator */}
+                <div className="absolute top-4 end-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:bg-[#3ECFC0]">
+                  <ArrowIcon className="h-5 w-5 text-white" />
+                </div>
+              </div>
             ))}
           </StaggerGrid>
         </div>

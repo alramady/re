@@ -450,3 +450,10 @@
 - [ ] Ensure cookie consent / data collection notice
 - [x] Audit all pages for Saudi regulatory compliance
 - [x] Remove placeholder email/phone from footer defaults — show nothing until admin fills from CMS
+
+## Cities Section Enhancement
+- [x] Add Riyadh city with real photo to homepage cities section
+- [x] Ensure cities are fully manageable from CMS (add/remove with photo upload)
+- [x] Ensure placeholder images work when no photo is uploaded
+- [ ] Push update to GitHub (pending)
+- [x] Add placeholder tourism licence number to footer and seed in DB (editable from CMS)

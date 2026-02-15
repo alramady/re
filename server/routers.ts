@@ -761,7 +761,7 @@ export const appRouter = router({
         "whatsapp.message": "مرحباً، أحتاج مساعدة بخصوص الإيجار الشهري",
         "whatsapp.textAr": "تواصل معنا",
         "whatsapp.textEn": "Chat with us",
-        "legal.tourismLicence": "",
+        "legal.tourismLicence": "٢٣٤٥٦٧٨٩٠١",
         "legal.crNumber": "",
         "legal.vatNumber": "",
         "legal.ejarLicence": "",
@@ -1055,6 +1055,16 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         await db.deleteCity(input.id);
         return { success: true };
+      }),
+
+    uploadPhoto: adminProcedure
+      .input(z.object({ base64: z.string(), filename: z.string(), contentType: z.string() }))
+      .mutation(async ({ input }) => {
+        const ext = input.filename.split('.').pop() || 'jpg';
+        const key = `cities/${nanoid()}.${ext}`;
+        const buffer = Buffer.from(input.base64, 'base64');
+        const { url } = await storagePut(key, buffer, input.contentType);
+        return { url };
       }),
   }),
 
