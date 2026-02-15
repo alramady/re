@@ -454,7 +454,7 @@ export default function AdminSettings() {
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <SettingField label={lang === "ar" ? "الحد الأدنى (أشهر)" : "Minimum Duration (months)"} settingKey="rental.minMonths" type="number" placeholder="1" />
-                    <SettingField label={lang === "ar" ? "الحد الأقصى (أشهر)" : "Maximum Duration (months)"} settingKey="rental.maxMonths" type="number" placeholder="12" />
+                    <SettingField label={lang === "ar" ? "الحد الأقصى (أشهر)" : "Maximum Duration (months)"} settingKey="rental.maxMonths" type="number" placeholder="2" />
                   </div>
                 </div>
 

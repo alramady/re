@@ -275,7 +275,7 @@ export const appRouter = router({
         if (!prop) throw new Error("Property not found");
         // Dynamic rental duration validation from settings
         const minMonths = parseInt(await db.getSetting("rental.minMonths") || "1");
-        const maxMonths = parseInt(await db.getSetting("rental.maxMonths") || "12");
+        const maxMonths = parseInt(await db.getSetting("rental.maxMonths") || "2");
         if (input.durationMonths < minMonths || input.durationMonths > maxMonths) {
           throw new Error(`Duration must be between ${minMonths} and ${maxMonths} months`);
         }
@@ -743,7 +743,7 @@ export const appRouter = router({
         "fees.depositPercent": "10",
         "fees.vatPercent": "15",
         "rental.minMonths": "1",
-        "rental.maxMonths": "12",
+        "rental.maxMonths": "2",
         "rental.minMonthsLabelAr": "الحد الأدنى لمدة الإيجار (بالأشهر)",
         "rental.minMonthsLabelEn": "Minimum Rental Duration (months)",
         "rental.maxMonthsLabelAr": "الحد الأقصى لمدة الإيجار (بالأشهر)",

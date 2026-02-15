@@ -51,7 +51,7 @@ describe("WhatsApp & CMS Settings", () => {
       "fees.vatPercent": "15",
       "fees.depositMonths": "2",
       "rental.minMonths": "1",
-      "rental.maxMonths": "12",
+      "rental.maxMonths": "2",
       "whatsapp.number": "966504466528",
     };
 

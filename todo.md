@@ -424,3 +424,18 @@
 - [ ] Fix amenities to show Arabic names when in Arabic mode (gym→نادي رياضي, etc.)
 - [ ] Create demo property manager profile in database
 - [ ] Push all updates to GitHub and Railway
+
+## Payment & Notifications & Manager Enhancements
+- [ ] PayPal sandbox integration in payment page (ready for live keys later)
+- [ ] Apple Pay / Google Pay buttons (UI ready, connect later)
+- [ ] Email notifications: new booking request → admin
+- [ ] Email notifications: booking approved/rejected → tenant
+- [ ] In-app notifications for booking status changes
+- [ ] Enhance admin property managers page (bulk assign, better UX)
+- [ ] Push all updates to GitHub and Railway
+
+## CMS Testimonials Integration
+- [x] Connect Home.tsx testimonials section to CMS settings (currently hardcoded)
+
+## Bug Fixes
+- [x] Fix rental duration text showing "1 to 12 months" instead of "1 to 2 months" on property create/edit page

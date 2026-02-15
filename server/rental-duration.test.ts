@@ -6,7 +6,7 @@ describe("Rental Duration Settings", () => {
     // Seed rental duration settings
     await db.bulkSetSettings({
       "rental.minMonths": "1",
-      "rental.maxMonths": "12",
+      "rental.maxMonths": "2",
     });
   });
 
@@ -17,7 +17,7 @@ describe("Rental Duration Settings", () => {
 
   it("should return rental.maxMonths setting", async () => {
     const val = await db.getSetting("rental.maxMonths");
-    expect(val).toBe("12");
+    expect(val).toBe("2");
   });
 
   it("should update rental.minMonths setting", async () => {
@@ -33,7 +33,7 @@ describe("Rental Duration Settings", () => {
     const val = await db.getSetting("rental.maxMonths");
     expect(val).toBe("6");
     // Reset
-    await db.bulkSetSettings({ "rental.maxMonths": "12" });
+    await db.bulkSetSettings({ "rental.maxMonths": "2" });
   });
 
   it("should handle both min and max update together", async () => {
@@ -48,7 +48,7 @@ describe("Rental Duration Settings", () => {
     // Reset
     await db.bulkSetSettings({
       "rental.minMonths": "1",
-      "rental.maxMonths": "12",
+      "rental.maxMonths": "2",
     });
   });
 

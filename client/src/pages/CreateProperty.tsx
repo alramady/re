@@ -29,7 +29,7 @@ export default function CreateProperty() {
 
   // Dynamic rental duration limits from CMS
   const platformMinMonths = parseInt(setting("rental.minMonths", "1")) || 1;
-  const platformMaxMonths = parseInt(setting("rental.maxMonths", "12")) || 12;
+  const platformMaxMonths = parseInt(setting("rental.maxMonths", "2")) || 2;
 
   const [form, setForm] = useState({
     titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "",

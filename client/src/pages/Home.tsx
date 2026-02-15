@@ -132,11 +132,24 @@ export default function Home() {
     { num: "03", titleAr: "استمتع بسكنك", titleEn: "Enjoy Your Home", descAr: "انتقل واستمتع بإقامة مريحة مع دعم متواصل", descEn: "Move in and enjoy a comfortable stay with ongoing support" },
   ];
 
-  const testimonials = [
+  // Testimonials: load from CMS settings, fall back to defaults
+  const defaultTestimonials = [
     { textAr: "منصة Monthly Key سهّلت علي البحث عن شقة شهرية في الرياض. الخدمة ممتازة والعقود واضحة.", textEn: "Monthly Key made it easy to find a monthly apartment in Riyadh. Excellent service and clear contracts.", nameAr: "أحمد المطيري", nameEn: "Ahmed Al-Mutairi", roleAr: "مستأجر - الرياض", roleEn: "Tenant - Riyadh", rating: 5 },
     { textAr: "سعيدة جداً باختياري لمنصة Monthly Key. من البحث وحتى التوقيع، كل شيء كان سلس واحترافي.", textEn: "Very happy with Monthly Key. From search to signing, everything was smooth and professional.", nameAr: "سارة الحربي", nameEn: "Sara Al-Harbi", roleAr: "مستأجرة - جدة", roleEn: "Tenant - Jeddah", rating: 5 },
     { textAr: "كمالك عقار، Monthly Key وفّرت لي إدارة كاملة لشقتي. العوائد ممتازة والتواصل مع المستأجرين سهل.", textEn: "As a property owner, Monthly Key provided complete management. Great returns and easy tenant communication.", nameAr: "خالد العتيبي", nameEn: "Khaled Al-Otaibi", roleAr: "مالك عقار - المدينة", roleEn: "Property Owner - Madinah", rating: 5 },
   ];
+  const testimonials = defaultTestimonials.map((def, idx) => {
+    const i = idx + 1;
+    return {
+      textAr: s(`testimonial.${i}.textAr`, def.textAr),
+      textEn: s(`testimonial.${i}.textEn`, def.textEn),
+      nameAr: s(`testimonial.${i}.nameAr`, def.nameAr),
+      nameEn: s(`testimonial.${i}.nameEn`, def.nameEn),
+      roleAr: s(`testimonial.${i}.roleAr`, def.roleAr),
+      roleEn: s(`testimonial.${i}.roleEn`, def.roleEn),
+      rating: parseInt(s(`testimonial.${i}.rating`, String(def.rating))) || def.rating,
+    };
+  });
 
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
 
