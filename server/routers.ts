@@ -769,6 +769,7 @@ export const appRouter = router({
         "terms.contentEn": "",
         "privacy.contentAr": "",
         "privacy.contentEn": "",
+        "faq.items": "[]",
       };
       await db.bulkSetSettings(defaults);
       return { success: true };

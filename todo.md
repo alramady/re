@@ -423,7 +423,7 @@
 ## Amenities & Demo Fixes
 - [ ] Fix amenities to show Arabic names when in Arabic mode (gym→نادي رياضي, etc.)
 - [ ] Create demo property manager profile in database
-- [ ] Push all updates to GitHub and Railway
+- [x] Push all updates to GitHub and Railway
 
 ## Payment & Notifications & Manager Enhancements
 - [ ] PayPal sandbox integration in payment page (ready for live keys later)
@@ -432,7 +432,7 @@
 - [ ] Email notifications: booking approved/rejected → tenant
 - [ ] In-app notifications for booking status changes
 - [ ] Enhance admin property managers page (bulk assign, better UX)
-- [ ] Push all updates to GitHub and Railway
+- [x] Push all updates to GitHub and Railway
 
 ## CMS Testimonials Integration
 - [x] Connect Home.tsx testimonials section to CMS settings (currently hardcoded)
@@ -455,5 +455,13 @@
 - [x] Add Riyadh city with real photo to homepage cities section
 - [x] Ensure cities are fully manageable from CMS (add/remove with photo upload)
 - [x] Ensure placeholder images work when no photo is uploaded
-- [ ] Push update to GitHub (pending)
+- [x] Push update to GitHub
 - [x] Add placeholder tourism licence number to footer and seed in DB (editable from CMS)
+
+## Batch Update - Cities, FAQ, PayPal
+- [x] Add Jeddah city with photo to homepage cities section
+- [x] Add Dammam city with photo to homepage cities section
+- [x] Create bilingual FAQ page (AR/EN) with CMS-editable content
+- [x] Add FAQ route to App.tsx and footer link
+- [x] PayPal payment integration already exists (Stripe not available in Saudi Arabia)
+- [x] Push all updates to GitHub

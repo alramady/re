@@ -36,6 +36,7 @@ const AgentProfile = lazy(() => import("./pages/AgentProfile"));
 const AgentEditProfile = lazy(() => import("./pages/AgentEditProfile"));
 const AdminManagers = lazy(() => import("./pages/AdminManagers"));
 const PaymentPage = lazy(() => import("./pages/PaymentPage"));
+const FAQ = lazy(() => import("./pages/FAQ"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
@@ -75,6 +76,7 @@ function Router() {
         <Route path="/agent/:id" component={AgentProfile} />
         <Route path="/admin/managers" component={AdminManagers} />
         <Route path="/pay/:id" component={PaymentPage} />
+        <Route path="/faq" component={FAQ} />
         <Route path="/privacy" component={PrivacyPolicy} />
         <Route path="/terms" component={TermsOfService} />
         <Route path="/404" component={NotFound} />
