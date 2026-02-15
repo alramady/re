@@ -374,28 +374,28 @@
 - [ ] Manager contact info shown professionally with click-to-call/whatsapp
 
 ### Inspection Request System
-- [ ] Add inspection_requests table (propertyId, userId, requestedDate, requestedTime, status, notes)
-- [ ] Inspection request form on property detail page with date/time picker
+- [x] Add inspection_requests table — already existed
+- [x] Inspection request form on property detail page — already existed
 - [ ] Available time slots configurable from CMS
 - [ ] Inspection request management in admin dashboard
 - [ ] Notification to property manager when new inspection requested
 - [ ] Status tracking (pending, confirmed, completed, cancelled)
 
 ### Enhanced Customer Profile
-- [ ] Extended user profile fields (fullName, fullNameAr, phone, whatsapp, nationalId, nationality, dateOfBirth, address, emergencyContact, profilePhoto)
-- [ ] Profile completion progress indicator
-- [ ] Profile page with edit capability
-- [ ] Upload profile photo and ID documents
+- [x] Extended user profile fields — already existed
+- [x] Profile completion progress indicator
+- [x] Profile page with edit capability
+- [x] Upload profile photo and ID documents
 - [ ] Booking history with status timeline
 - [ ] Saved properties and search history
 
 ### Hero Video/Image Background
-- [ ] Support video background in hero section (mp4/webm URL from CMS)
-- [ ] Support image background as fallback
-- [ ] CMS toggle: video or image mode
-- [ ] Video autoplay, muted, loop with overlay
-- [ ] Mobile: show image fallback (save bandwidth)
-- [ ] Professional overlay gradient for text readability
+- [x] Support video background in hero section (mp4/webm URL from CMS) — already existed
+- [x] Support image background as fallback — already existed
+- [x] CMS toggle: video or image mode — already existed
+- [x] Video autoplay, muted, loop with overlay — already existed
+- [x] Mobile: show image fallback — already existed
+- [x] Professional overlay gradient for text readability — already existed
 
 ### Mobile-Ready API Architecture
 - [ ] Ensure all tRPC endpoints return clean JSON for future mobile app
@@ -474,4 +474,24 @@
 - [x] Email notifications: booking approved/rejected → tenant (via in-app + notifyOwner)
 - [x] Add SEO meta tags and Open Graph to all pages
 - [x] Create reusable SEO/Head component
-- [ ] Push all updates to GitHub (pending)
+- [x] Push all updates to GitHub
+
+## Inspection Request System
+- [x] Add inspection_requests table — already existed
+- [x] Inspection request tRPC endpoints — already existed
+- [x] Inspection request form on property detail page — already existed
+- [x] Admin inspection management in dashboard — already existed
+- [x] Notification to admin when new inspection requested — already existed
+
+## Enhanced Customer Profile
+- [x] Add extended user fields — already existed
+- [x] Profile page with edit capability and photo upload
+- [x] Profile completion progress indicator
+- [ ] Booking history with status timeline on profile
+
+## Hero Video Background
+- [x] Support video background in hero section (mp4/webm URL from CMS) — already existed
+- [x] CMS toggle: video or image mode — already existed
+- [x] Video autoplay, muted, loop with overlay — already existed
+- [x] Mobile: show image fallback — already existed
+- [x] Push all updates to GitHub

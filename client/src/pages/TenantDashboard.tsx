@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 
@@ -53,6 +53,48 @@ export default function TenantDashboard() {
     address: "", city: "", bio: "",
   });
   const [profileLoading, setProfileLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const docInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadFile = trpc.upload.file.useMutation();
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error(lang === "ar" ? "حجم الصورة يجب أن يكون أقل من 5 ميجا" : "Image must be under 5MB"); return; }
+    setUploadingAvatar(true);
+    try {
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+      const result = await uploadFile.mutateAsync({ base64, filename: file.name, contentType: file.type });
+      await updateProfile.mutateAsync({ avatarUrl: result.url });
+      toast.success(lang === "ar" ? "تم رفع الصورة بنجاح" : "Photo uploaded successfully");
+    } catch { toast.error(lang === "ar" ? "فشل رفع الصورة" : "Failed to upload photo"); }
+    setUploadingAvatar(false);
+  };
+
+  const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { toast.error(lang === "ar" ? "حجم الملف يجب أن يكون أقل من 10 ميجا" : "File must be under 10MB"); return; }
+    setUploadingDoc(true);
+    try {
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+      const result = await uploadFile.mutateAsync({ base64, filename: file.name, contentType: file.type });
+      await updateProfile.mutateAsync({ idDocumentUrl: result.url });
+      toast.success(lang === "ar" ? "تم رفع المستند بنجاح" : "Document uploaded successfully");
+    } catch { toast.error(lang === "ar" ? "فشل رفع المستند" : "Failed to upload document"); }
+    setUploadingDoc(false);
+  };
 
   const updateProfile = trpc.auth.updateProfile.useMutation({
     onSuccess: () => { toast.success(lang === "ar" ? "تم حفظ الملف الشخصي" : "Profile saved successfully"); },
@@ -287,9 +329,9 @@ export default function TenantDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* User Avatar & Name */}
+                {/* User Avatar & Name with Upload */}
                 <div className="flex items-center gap-4 pb-4 border-b">
-                  <div className="relative">
+                  <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
                     {user?.avatarUrl ? (
                       <img src={user.avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover border-2 border-[#3ECFC0]/30" />
                     ) : (
@@ -297,11 +339,27 @@ export default function TenantDashboard() {
                         <User className="h-8 w-8 text-[#3ECFC0]" />
                       </div>
                     )}
+                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      {uploadingAvatar ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+                    </div>
+                    <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="text-xl font-heading font-bold">{user?.name}</h3>
                     <p className="text-sm text-muted-foreground">{user?.email}</p>
-                    <Badge variant="outline" className="mt-1">{user?.role === "admin" ? (lang === "ar" ? "مدير" : "Admin") : (lang === "ar" ? "مستأجر" : "Tenant")}</Badge>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline">{user?.role === "admin" ? (lang === "ar" ? "مدير" : "Admin") : (lang === "ar" ? "مستأجر" : "Tenant")}</Badge>
+                    </div>
+                    {/* Profile Completion */}
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-muted-foreground">{lang === "ar" ? "اكتمال الملف" : "Profile Completion"}</span>
+                        <span className="font-semibold text-[#3ECFC0]">{(user as any)?.profileCompletionPct || 0}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-[#3ECFC0] rounded-full transition-all" style={{ width: `${(user as any)?.profileCompletionPct || 0}%` }} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -378,6 +436,32 @@ export default function TenantDashboard() {
                   <Label>{lang === "ar" ? "نبذة شخصية" : "About Me"}</Label>
                   <Textarea value={profileForm.bio} onChange={(e) => setProfileForm(p => ({ ...p, bio: e.target.value }))} placeholder={lang === "ar" ? "أخبرنا عن نفسك..." : "Tell us about yourself..."} rows={3} />
                 </div>
+
+                {/* ID Document Upload */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-[#C9A96E]" />
+                    {lang === "ar" ? "مستند الهوية" : "ID Document"}
+                  </h4>
+                  {(user as any)?.idDocumentUrl ? (
+                    <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <span className="text-sm">{lang === "ar" ? "تم رفع مستند الهوية" : "ID document uploaded"}</span>
+                      <Button variant="outline" size="sm" className="ms-auto" onClick={() => docInputRef.current?.click()}>
+                        {uploadingDoc ? <Loader2 className="h-4 w-4 animate-spin" /> : (lang === "ar" ? "تحديث" : "Update")}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors" onClick={() => docInputRef.current?.click()}>
+                      <AlertCircle className="h-5 w-5 text-amber-600" />
+                      <span className="text-sm">{lang === "ar" ? "يرجى رفع صورة الهوية / الإقامة" : "Please upload your ID / Iqama copy"}</span>
+                      {uploadingDoc && <Loader2 className="h-4 w-4 animate-spin ms-auto" />}
+                    </div>
+                  )}
+                  <input ref={docInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handleDocUpload} />
+                </div>
+
+                <Separator />
 
                 <Button
                   className="bg-[#3ECFC0] text-[#0B1E2D] hover:bg-[#2ab5a6] font-semibold"
