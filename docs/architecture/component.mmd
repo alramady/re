@@ -1,0 +1,52 @@
+C4Component
+  title Component diagram for Munsiq API Application
+
+  Container(web_app, "Web Application", "Next.js", "Provides UI for all users.")
+  ContainerDb(db, "Database", "PostgreSQL", "Stores core business data.")
+  Container(queue, "Queue", "Redis/BullMQ", "Handles background jobs.")
+  System_Ext(ejar, "Ejar System", "Contract synchronization.")
+  System_Ext(sadad, "SADAD", "Payment processing.")
+
+  System_Boundary(api, "API Application") {
+    Component(auth_service, "Auth Service", "NestJS Module", "Handles user authentication (JWT) and authorization (RBAC).")
+    Component(property_service, "Property Service", "NestJS Module", "Manages properties, units, and related data.")
+    Component(tenant_service, "Tenant Service", "NestJS Module", "Manages tenant profiles and identity verification.")
+    Component(contract_service, "Contract Service", "NestJS Module", "Manages lease contracts and Ejar integration.")
+    Component(payment_service, "Payment Service", "NestJS Module", "Manages invoices, payments, and SADAD integration.")
+    Component(notification_service, "Notification Service", "NestJS Module", "Dispatches notifications (SMS, Email, Push).")
+    Component(audit_log, "Audit Log", "NestJS Module", "Logs all critical system events.")
+  }
+
+  Rel(web_app, auth_service, "Authenticates users")
+  Rel(web_app, property_service, "Manages properties")
+  Rel(web_app, tenant_service, "Manages tenants")
+  Rel(web_app, contract_service, "Manages contracts")
+  Rel(web_app, payment_service, "Processes payments")
+
+  Rel(auth_service, db, "Reads/Writes users, roles")
+  Rel(property_service, db, "Reads/Writes properties, units")
+  Rel(tenant_service, db, "Reads/Writes tenants")
+  Rel(contract_service, db, "Reads/Writes contracts")
+  Rel(payment_service, db, "Reads/Writes invoices, payments")
+  Rel(audit_log, db, "Writes audit logs")
+
+  Rel(contract_service, ejar, "Syncs contracts", "HTTPS")
+  Rel(payment_service, sadad, "Processes payments", "HTTPS")
+
+  Rel(contract_service, queue, "Enqueues Ejar sync job")
+  Rel(payment_service, queue, "Enqueues invoice generation job")
+  Rel(notification_service, queue, "Dequeues notification jobs")
+
+  Rel(auth_service, audit_log, "Logs auth events")
+  Rel(property_service, audit_log, "Logs property CUD events")
+  Rel(tenant_service, audit_log, "Logs tenant CUD events")
+  Rel(contract_service, audit_log, "Logs contract CUD events")
+  Rel(payment_service, audit_log, "Logs payment events")
+
+  UpdateElementStyle(auth_service, $bgColor="#2D82B6")
+  UpdateElementStyle(property_service, $bgColor="#2D82B6")
+  UpdateElementStyle(tenant_service, $bgColor="#2D82B6")
+  UpdateElementStyle(contract_service, $bgColor="#2D82B6")
+  UpdateElementStyle(payment_service, $bgColor="#2D82B6")
+  UpdateElementStyle(notification_service, $bgColor="#E06666")
+  UpdateElementStyle(audit_log, $bgColor="#B4A7D6")

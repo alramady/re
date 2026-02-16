@@ -1,0 +1,39 @@
+sequenceDiagram
+  title Critical Flow: New Contract Creation & Payment
+
+  actor Tenant
+  participant WebApp
+  participant API
+  participant ContractSvc as Contract Service
+  participant EjarAPI as Ejar API
+  participant PaymentSvc as Payment Service
+  participant SadadAPI as SADAD API
+  participant NotifSvc as Notification Service
+
+  Tenant->>WebApp: 1. Submits new contract form
+  WebApp->>API: 2. POST /api/v1/contracts
+  API->>ContractSvc: 3. createContract(data)
+  ContractSvc->>ContractSvc: 4. Validate data & unit availability
+  ContractSvc->>API: 5. Return contract with status DRAFT
+  API->>WebApp: 6. Contract created successfully
+
+  Note over ContractSvc, NotifSvc: Background Job (Async)
+  ContractSvc->>EjarAPI: 7. POST /contracts (Sync contract)
+  EjarAPI-->>ContractSvc: 8. Return Ejar confirmation
+  ContractSvc->>ContractSvc: 9. Update contract status to ACTIVE
+  ContractSvc->>PaymentSvc: 10. triggerInvoiceGeneration(contractId)
+
+  PaymentSvc->>PaymentSvc: 11. Generate monthly invoices
+  PaymentSvc->>SadadAPI: 12. POST /invoices (Register SADAD bill)
+  SadadAPI-->>PaymentSvc: 13. Return SADAD bill number
+  PaymentSvc->>NotifSvc: 14. sendInvoiceNotification(tenantId, invoice)
+  NotifSvc->>Tenant: 15. Send SMS/Email with invoice details
+
+  loop Tenant Payment
+    Tenant->>SadadAPI: 16. Pays invoice via bank app
+    SadadAPI->>API: 17. Webhook: POST /webhooks/sadad
+    API->>PaymentSvc: 18. processPaymentCallback(payload)
+    PaymentSvc->>PaymentSvc: 19. Update invoice status to PAID
+    PaymentSvc->>NotifSvc: 20. sendPaymentConfirmation(tenantId)
+    NotifSvc->>Tenant: 21. Send SMS/Email confirmation
+  end

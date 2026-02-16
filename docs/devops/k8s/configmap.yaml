@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: munsiq-api-configmap
+  namespace: munsiq-prod
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  CORS_ORIGIN: "https://munsiq.sa"
+  REDIS_HOST: "elasti-cache-cluster.xxxxxx.cache.amazonaws.com"
+  REDIS_PORT: "6379"
+  # Non-sensitive configuration values
+  # Sensitive values like DB_HOST, DB_USER, DB_PASSWORD, JWT_SECRET, etc.
+  # should be stored in a Secret, and sourced from, a Secret, not a ConfigMap.

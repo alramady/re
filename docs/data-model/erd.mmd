@@ -1,0 +1,99 @@
+erDiagram
+    USERS {
+        uuid id PK
+        varchar name
+        varchar email UK
+        varchar password_hash
+        uuid role_id FK
+    }
+
+    ROLES {
+        uuid id PK
+        varchar name UK
+    }
+
+    PROPERTIES {
+        uuid id PK
+        varchar name
+        text address
+        varchar status
+    }
+
+    UNITS {
+        uuid id PK
+        uuid property_id FK
+        varchar unit_number
+        varchar status
+        decimal annual_rent
+    }
+
+    TENANTS {
+        uuid id PK
+        varchar full_name_encrypted
+        varchar national_id_encrypted UK
+        varchar phone_number_encrypted
+        varchar verification_status
+    }
+
+    CONTRACTS {
+        uuid id PK
+        uuid unit_id FK
+        uuid tenant_id FK
+        date start_date
+        date end_date
+        varchar status
+        varchar ejar_contract_id
+    }
+
+    INSTALLMENTS {
+        uuid id PK
+        uuid contract_id FK
+        date due_date
+        decimal amount
+        varchar status
+    }
+
+    INVOICES {
+        uuid id PK
+        uuid installment_id FK
+        varchar status
+        varchar sadad_bill_number UK
+    }
+
+    PAYMENTS {
+        uuid id PK
+        uuid invoice_id FK
+        decimal amount_paid
+        timestamp payment_date
+        varchar method
+        varchar reference_number
+    }
+
+    MAINTENANCE_REQUESTS {
+        uuid id PK
+        uuid unit_id FK
+        uuid tenant_id FK
+        text description
+        varchar status
+        uuid assigned_to_id FK
+    }
+
+    AUDIT_LOGS {
+        uuid id PK
+        uuid user_id FK
+        varchar action
+        json details
+        timestamp created_at
+    }
+
+    USERS ||--o{ ROLES : "has"
+    PROPERTIES ||--|{ UNITS : "contains"
+    UNITS ||--o{ CONTRACTS : "is leased via"
+    TENANTS ||--o{ CONTRACTS : "signs"
+    CONTRACTS ||--|{ INSTALLMENTS : "has"
+    INSTALLMENTS ||--|| INVOICES : "generates"
+    INVOICES ||--o{ PAYMENTS : "is paid by"
+    UNITS ||--o{ MAINTENANCE_REQUESTS : "has"
+    TENANTS ||--o{ MAINTENANCE_REQUESTS : "creates"
+    USERS ||--o{ MAINTENANCE_REQUESTS : "is assigned"
+    USERS ||--o{ AUDIT_LOGS : "performs"

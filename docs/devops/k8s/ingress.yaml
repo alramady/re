@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: munsiq-ingress
+  namespace: munsiq-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+spec:
+  tls:
+    - hosts:
+        - "munsiq.sa"
+        - "api.munsiq.sa"
+      secretName: munsiq-tls-secret
+  rules:
+    - host: "munsiq.sa"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: munsiq-web-service
+                port:
+                  number: 80
+    - host: "api.munsiq.sa"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: munsiq-api-service
+                port:
+                  number: 80

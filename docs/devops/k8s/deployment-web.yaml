@@ -1,0 +1,39 @@
+_apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: munsiq-web-deployment
+  namespace: munsiq-prod
+  labels:
+    app: munsiq-web
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: munsiq-web
+  template:
+    metadata:
+      labels:
+        app: munsiq-web
+    spec:
+      containers:
+        - name: munsiq-web
+          image: <your-container-registry>/munsiq-web:1.0.0 # Replace with actual image path
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "https://api.munsiq.sa/v1"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 5

@@ -1,0 +1,78 @@
+_# Continuous Deployment (CD) Workflow for Munsiq Platform
+
+name: CD
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment on merge to main
+
+jobs:
+  deploy-to-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: me-south-1
+
+      - name: Set up Kubeconfig for EKS
+        run: aws eks update-kubeconfig --name staging-cluster --region me-south-1
+
+      - name: Deploy to Staging
+        uses: kustomize/action@v1
+        with:
+          kustomization: ./docs/devops/k8s/ # Path to your K8s manifests
+          images: |
+            your-registry/munsiq-api=${{ github.sha }}
+            your-registry/munsiq-web=${{ github.sha }}
+          # Here you would typically apply environment-specific overlays
+
+  approve-for-production:
+    name: Approve for Production
+    runs-on: ubuntu-latest
+    needs: deploy-to-staging
+    environment: production
+
+    steps:
+      - name: Manual approval step
+        run: echo "Deployment to production requires manual approval."
+        # This step will wait for a manual approval from a team member
+        # configured in the GitHub environment settings.
+
+  deploy-to-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: approve-for-production
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: me-south-1
+
+      - name: Set up Kubeconfig for EKS
+        run: aws eks update-kubeconfig --name production-cluster --region me-south-1
+
+      - name: Deploy to Production
+        uses: kustomize/action@v1
+        with:
+          kustomization: ./docs/devops/k8s/ # Path to your K8s manifests
+          images: |
+            your-registry/munsiq-api=${{ github.sha }}
+            your-registry/munsiq-web=${{ github.sha }}
+          # Apply production-specific overlays

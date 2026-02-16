@@ -1,0 +1,11 @@
+# Test Cases: Contract Management
+
+| Test Case ID | Feature | Test Scenario | Test Steps | Expected Result | Type | Priority |
+|---|---|---|---|---|---|---|
+| TC-CNTR-001 | Create Contract | Successful creation of a new lease contract | 1. Log in as PropertyManager.<br>2. Navigate to "Create Contract".<br>3. Select a vacant unit and a verified tenant.<br>4. Fill in all required fields (dates, rent).<br>5. Click "Create". | Contract is created with status `DRAFT`. The unit status changes to `RESERVED`. An Ejar sync job is enqueued. | E2E | P1 |
+| TC-CNTR-002 | Create Contract | Attempt to create a contract for an occupied unit | 1. Log in as PropertyManager.<br>2. Select an occupied unit in the create contract form. | An error message "Unit is not vacant" is displayed. The form cannot be submitted. | E2E | P1 |
+| TC-CNTR-003 | Ejar Sync | Successful Ejar synchronization | 1. A contract is created and the `sync-ejar` job runs.<br>2. The job successfully calls the Ejar API. | The contract status updates to `ACTIVE`. The unit status updates to `OCCUPIED`. | Integration | P1 |
+| TC-CNTR-004 | Ejar Sync | Ejar API is down during synchronization | 1. The `sync-ejar` job runs but the Ejar API returns a 500 error. | The job retries 3 times with exponential backoff. After all retries fail, the contract status is set to `EJAR_SYNC_FAILED` and an alert is sent. | Integration | P2 |
+| TC-CNTR-005 | Installment Generation | Automatic generation of payment installments | 1. A contract is created with monthly payments for 1 year. | 12 installment records are created in the database, each with the correct due date and amount. | Integration | P1 |
+| TC-CNTR-006 | Contract Renewal | Renewing an existing contract | 1. Find a contract that is nearing its end date.<br>2. Click the "Renew" action.<br>3. Confirm the new dates and any rent changes. | A new contract is created with a link to the old one. The old contract is marked as `EXPIRED` or similar. | E2E | P2 |
+| TC-CNTR-007 | Contract Termination | Early termination of a contract | 1. Find an active contract.<br>2. Click the "Terminate" action.<br>3. Enter the termination date and reason. | The contract status is set to `TERMINATED`. The unit status becomes `VACANT`. Any termination fees are calculated. | E2E | P2 |

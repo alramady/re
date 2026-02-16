@@ -1,0 +1,41 @@
+C4Container
+  title Container diagram for Munsiq Platform
+
+  Person(pm, "Property Manager", "Manages properties, tenants, contracts.")
+  Person(tenant, "Tenant", "Views contracts, pays rent, requests maintenance.
+  [PWA]")
+
+  System_Ext(ejar, "Ejar System", "Official Saudi government rental services portal.")
+  System_Ext(sadad, "SADAD Payment System", "National bill payment system.")
+  System_Ext(nafath, "Nafath", "National unified authentication service.")
+  System_Ext(twilio, "Twilio", "SMS/Notification service.")
+  System_Ext(s3, "AWS S3", "Object storage for documents.")
+
+  System_Boundary(c1, "Munsiq Platform") {
+    Container(web_app, "Web Application (PWA)", "Next.js 14, React, TailwindCSS", "Provides all user-facing functionality in the browser.")
+    Container(api, "API Application", "Node.js, NestJS 10", "Provides business logic, data access, and external integrations.")
+    ContainerDb(db, "Database", "PostgreSQL 16", "Stores all core data: properties, tenants, contracts, users, etc.")
+    ContainerDb(cache, "Cache", "Redis 7", "Caches frequently accessed data (e.g., sessions, configs).")
+    Container(queue, "Queue", "Redis 7 + BullMQ", "Manages background jobs (e.g., notifications, Ejar sync).")
+  }
+
+  Rel(pm, web_app, "Uses", "HTTPS")
+  Rel(tenant, web_app, "Uses", "HTTPS")
+
+  Rel(web_app, api, "Makes API calls", "HTTPS/JSON")
+
+  Rel(api, db, "Reads/Writes data", "TCP/5432")
+  Rel(api, cache, "Reads/Writes cache", "TCP/6379")
+  Rel(api, queue, "Enqueues/Dequeues jobs", "TCP/6379")
+
+  Rel(api, ejar, "Syncs contracts", "HTTPS/API")
+  Rel(api, sadad, "Processes payments", "HTTPS/API")
+  Rel(api, nafath, "Verifies identity", "HTTPS/API")
+  Rel(api, twilio, "Sends SMS", "HTTPS/API")
+  Rel(api, s3, "Stores files", "HTTPS/API")
+
+  UpdateElementStyle(web_app, $bgColor="#2D82B6", $fontColor="white")
+  UpdateElementStyle(api, $bgColor="#1168BD", $fontColor="white")
+  UpdateElementStyle(db, $bgColor="#5278A8", $fontColor="white")
+  UpdateElementStyle(cache, $bgColor="#E06666", $fontColor="white")
+  UpdateElementStyle(queue, $bgColor="#E06666", $fontColor="white")

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: munsiq-api-service
+  namespace: munsiq-prod
+spec:
+  selector:
+    app: munsiq-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: munsiq-web-service
+  namespace: munsiq-prod
+spec:
+  selector:
+    app: munsiq-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

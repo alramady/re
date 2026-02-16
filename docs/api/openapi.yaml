@@ -1,0 +1,257 @@
+openapi: 3.0.3
+info:
+  title: Munsiq Platform API
+  description: API for Munsiq, a real estate management platform for the Saudi market.
+  version: 1.0.0
+  contact:
+    email: tech@munsiq.sa
+
+servers:
+  - url: https://api.munsiq.sa/v1
+    description: Production Server
+  - url: https://staging-api.munsiq.sa/v1
+    description: Staging Server
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized
+
+  /properties:
+    post:
+      tags:
+        - Properties
+      summary: Create a new property
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyDto'
+      responses:
+        '201':
+          description: Property created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+    get:
+      tags:
+        - Properties
+      summary: List and search properties
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for property name or address
+      responses:
+        '200':
+          description: A list of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+
+  /properties/{id}:
+    get:
+      tags:
+        - Properties
+      summary: Get property details
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+  /contracts:
+    post:
+      tags:
+        - Contracts
+      summary: Create a new lease contract
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContractDto'
+      responses:
+        '201':
+          description: Contract created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+
+  /webhooks/sadad:
+    post:
+      tags:
+        - Webhooks
+      summary: SADAD payment callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SadadWebhookDto'
+      responses:
+        '204':
+          description: Webhook received and processed
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+
+    CreatePropertyDto:
+      type: object
+      required:
+        - name
+        - address
+        - type
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        type:
+          type: string
+          enum: [residential, commercial]
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    Contract:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [DRAFT, ACTIVE, EXPIRED, TERMINATED]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    CreateContractDto:
+      type: object
+      required:
+        - property_id
+        - unit_id
+        - tenant_id
+        - start_date
+        - end_date
+        - annual_rent
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        unit_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        annual_rent:
+          type: number
+
+    SadadWebhookDto:
+      type: object
+      properties:
+        billNumber:
+          type: string
+        transactionId:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [PAID, FAILED]
