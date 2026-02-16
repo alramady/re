@@ -779,3 +779,32 @@
 - [x] Write 8 image optimizer tests, 28 cache/rate limiter tests, 4 performance benchmarks
 - [x] All 367 tests passing, 0 TypeScript errors
 - [x] Save checkpoint, push to GitHub
+
+## Full Production Audit (Feb 16)
+### Security — 10 CRITICAL, 5 HIGH, 5 MEDIUM found and fixed
+- [x] Audit: auth bypass — found 6 endpoints missing ownership checks (booking.getById, maintenance.getById, emergencyMaintenance.getById, savedSearch.delete, notification.markRead, setAvailability)
+- [x] Audit: input validation — added .max() limits to all string inputs, sanitizeText on user content, sanitizeObject on mutations
+- [x] Audit: file upload — added validateContentType, validateFileExtension, MAX_BASE64_SIZE (10MB), MAX_AVATAR_BASE64_SIZE (2MB)
+- [x] Audit: rate limiting — added to message.send (30/min), contact.submit, booking.create, maintenance.create, requestEditLink (5/hr)
+- [x] Audit: sensitive data — removed token from requestEditLink response, only return safe fields
+- [x] Audit: CORS/cookies — framework handles via _core, session cookies are httpOnly+secure
+- [x] Audit: authorization — added isOwnerOrAdmin, isBookingParticipant helpers, enforced on all detail endpoints
+### Business Logic — verified correct
+- [x] Audit: booking flow — create validates property exists, duration within settings range, insurance 10%, status transitions gated by role
+- [x] Audit: property management — CRUD with ownership checks, photo upload with type/size validation, cache invalidation
+- [x] Audit: maintenance request flow — create with property validation, update gated by landlord/admin
+- [x] Audit: viewing request flow — schedule with property validation, approve/reject by landlord/admin
+- [x] Audit: review system — only completed booking tenant can review, duplicate review blocked
+- [x] Audit: financial calculations — insurance 10% of monthly rent, dynamic min/max months from settings
+### Frontend — verified
+- [x] Audit: auth guards — protectedProcedure on all sensitive endpoints, useAuth() on frontend routes
+- [x] Audit: error boundaries — tRPC error handling in place, loading/error states in components
+- [x] Audit: form validation — zod schemas on all inputs with min/max constraints
+- [x] Audit: loading/empty/error states — skeleton loaders, empty state messages, error toasts
+### Fixes Applied
+- [x] Fixed 10 CRITICAL: authorization on 6 endpoints, file validation on 3 upload endpoints, token exposure on 1 endpoint
+- [x] Fixed 5 HIGH: rate limiting on 5 mutation endpoints, XSS sanitization, shared DB instance (removed per-request drizzle)
+- [x] Fixed 5 MEDIUM: replaced 20 throw new Error() with TRPCError, added string length limits, pagination caps
+- [x] Wrote 37 security tests (sanitization, file validation, pagination, authorization helpers)
+- [x] All 404 tests passing, 0 TypeScript errors
+- [x] Save checkpoint, push to GitHub

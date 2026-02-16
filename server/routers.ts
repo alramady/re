@@ -21,6 +21,10 @@ import { savePushSubscription, removePushSubscription, sendPushToUser, sendPushB
 import { roles as rolesTable, aiMessages as aiMessagesTable } from "../drizzle/schema";
 import { drizzle } from "drizzle-orm/mysql2";
 import { eq as eqDrizzle } from "drizzle-orm";
+import { sanitizeText, sanitizeObject, validateContentType, validateFileExtension, MAX_BASE64_SIZE, MAX_AVATAR_BASE64_SIZE, ALLOWED_IMAGE_TYPES, ALLOWED_UPLOAD_TYPES, capLimit, capOffset, isOwnerOrAdmin, isBookingParticipant } from "./security";
+
+// Shared drizzle instance for roles/aiStats (avoid creating new connections per request)
+const sharedDb = drizzle(process.env.DATABASE_URL!);
 
 export const appRouter = router({
   system: systemRouter,
@@ -155,8 +159,8 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
         const prop = await db.getPropertyById(id);
-        if (!prop) throw new Error("Property not found");
-        if (prop.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new Error("Unauthorized");
+        if (!prop) throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
+        if (prop.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new TRPCError({ code: 'FORBIDDEN', message: 'Unauthorized' });
         await db.updateProperty(id, data as any);
         cache.invalidatePrefix('property:'); cache.invalidatePrefix('search:');
         return { success: true };
@@ -166,8 +170,8 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const prop = await db.getPropertyById(input.id);
-        if (!prop) throw new Error("Property not found");
-        if (prop.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new Error("Unauthorized");
+        if (!prop) throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
+        if (prop.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new TRPCError({ code: 'FORBIDDEN', message: 'Unauthorized' });
         await db.deleteProperty(input.id);
         cache.invalidatePrefix('property:'); cache.invalidatePrefix('search:');
         return { success: true };
@@ -218,8 +222,9 @@ export const appRouter = router({
       }),
 
     uploadPhoto: protectedProcedure
-      .input(z.object({ base64: z.string(), filename: z.string(), contentType: z.string() }))
+      .input(z.object({ base64: z.string().max(MAX_BASE64_SIZE), filename: z.string().max(255), contentType: z.string().max(100) }))
       .mutation(async ({ ctx, input }) => {
+        if (!validateContentType(input.contentType, ALLOWED_IMAGE_TYPES)) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid file type. Only images allowed.' });
         const buffer = Buffer.from(input.base64, 'base64');
         const basePath = `properties/${ctx.user.id}`;
         try {
@@ -254,7 +259,10 @@ export const appRouter = router({
         isBlocked: z.boolean().optional(),
         priceOverride: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        const prop = await db.getPropertyById(input.propertyId);
+        if (!prop) throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
+        if (!isOwnerOrAdmin(ctx.user, prop.landlordId)) throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
         await db.setPropertyAvailability({
           ...input,
           startDate: new Date(input.startDate),
@@ -308,12 +316,12 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         const prop = await db.getPropertyById(input.propertyId);
-        if (!prop) throw new Error("Property not found");
+        if (!prop) throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
         // Dynamic rental duration validation from settings
         const minMonths = parseInt(await db.getSetting("rental.minMonths") || "1");
         const maxMonths = parseInt(await db.getSetting("rental.maxMonths") || "2");
         if (input.durationMonths < minMonths || input.durationMonths > maxMonths) {
-          throw new Error(`Duration must be between ${minMonths} and ${maxMonths} months`);
+          throw new TRPCError({ code: 'BAD_REQUEST', message: `Duration must be between ${minMonths} and ${maxMonths} months` });
         }
         const totalAmount = Number(prop.monthlyRent) * input.durationMonths;
         const id = await db.createBooking({
@@ -376,8 +384,8 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         const booking = await db.getBookingById(input.id);
-        if (!booking) throw new Error("Booking not found");
-        if (booking.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new Error("Unauthorized");
+        if (!booking) throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+        if (booking.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new TRPCError({ code: 'FORBIDDEN', message: 'Unauthorized' });
         await db.updateBooking(input.id, {
           status: input.status,
           rejectionReason: input.rejectionReason,
@@ -423,8 +431,11 @@ export const appRouter = router({
 
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        return db.getBookingById(input.id) ?? null;
+      .query(async ({ ctx, input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) return null;
+        if (!isBookingParticipant(ctx.user, booking)) throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
+        return booking;
       }),
 
     myBookings: protectedProcedure.query(async ({ ctx }) => {
@@ -443,12 +454,13 @@ export const appRouter = router({
         bookingId: z.number(),
         type: z.enum(["rent", "deposit", "service_fee"]),
         amount: z.string(),
-        description: z.string().optional(),
-        descriptionAr: z.string().optional(),
+        description: z.string().max(500).optional(),
+        descriptionAr: z.string().max(500).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const booking = await db.getBookingById(input.bookingId);
-        if (!booking) throw new Error("Booking not found");
+        if (!booking) throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+        if (booking.tenantId !== ctx.user.id) throw new TRPCError({ code: 'FORBIDDEN', message: 'Only the tenant can create payments for this booking' });
         const id = await db.createPayment({
           bookingId: input.bookingId,
           tenantId: ctx.user.id,
@@ -545,17 +557,20 @@ export const appRouter = router({
         conversationId: z.number().optional(),
         recipientId: z.number().optional(),
         propertyId: z.number().optional(),
-        content: z.string().min(1),
+        content: z.string().min(1).max(5000),
         messageType: z.enum(["text", "image", "file"]).optional(),
-        fileUrl: z.string().optional(),
+        fileUrl: z.string().max(2000).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        const rl = rateLimiter.check(`msg:${ctx.user.id}`, 30, 60000); // 30 per min
+        if (!rl.allowed) throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Too many messages. Please slow down.' });
+        if (input.messageType === 'text') input.content = sanitizeText(input.content);
         let convId = input.conversationId;
         if (!convId && input.recipientId) {
           const conv = await db.getOrCreateConversation(ctx.user.id, input.recipientId, input.propertyId);
           convId = conv?.id;
         }
-        if (!convId) throw new Error("Conversation not found");
+        if (!convId) throw new TRPCError({ code: 'NOT_FOUND', message: 'Conversation not found' });
         const id = await db.createMessage({
           conversationId: convId,
           senderId: ctx.user.id,
@@ -609,7 +624,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         const prop = await db.getPropertyById(input.propertyId);
-        if (!prop) throw new Error("Property not found");
+        if (!prop) throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
         const id = await db.createMaintenanceRequest({
           ...input,
           tenantId: ctx.user.id,
@@ -640,8 +655,8 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
         const req = await db.getMaintenanceById(id);
-        if (!req) throw new Error("Request not found");
-        if (req.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new Error("Unauthorized");
+        if (!req) throw new TRPCError({ code: 'NOT_FOUND', message: 'Request not found' });
+        if (req.landlordId !== ctx.user.id && ctx.user.role !== "admin") throw new TRPCError({ code: 'FORBIDDEN', message: 'Unauthorized' });
         const updateData: any = { ...data };
         if (input.status === "completed") updateData.resolvedAt = new Date();
         await db.updateMaintenanceRequest(id, updateData);
@@ -666,8 +681,11 @@ export const appRouter = router({
 
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        return db.getMaintenanceById(input.id) ?? null;
+      .query(async ({ ctx, input }) => {
+        const req = await db.getMaintenanceById(input.id);
+        if (!req) return null;
+        if (req.tenantId !== ctx.user.id && req.landlordId !== ctx.user.id && ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
+        return req;
       }),
   }),
 
@@ -678,7 +696,11 @@ export const appRouter = router({
     }),
     markRead: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        // Verify notification belongs to user
+        const notifications = await db.getNotificationsByUser(ctx.user.id);
+        const owns = notifications.some((n: any) => n.id === input.id);
+        if (!owns) throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
         await db.markNotificationRead(input.id);
         return { success: true };
       }),
@@ -716,7 +738,11 @@ export const appRouter = router({
     }),
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        // Verify ownership before delete
+        const searches = await db.getSavedSearches(ctx.user.id);
+        const owns = searches.some((s: any) => s.id === input.id);
+        if (!owns) throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
         await db.deleteSavedSearch(input.id);
         return { success: true };
       }),
@@ -1010,9 +1036,9 @@ export const appRouter = router({
     // Admin: Upload document to knowledge base
     uploadDocument: adminWithPermission(PERMISSIONS.MANAGE_KNOWLEDGE)
       .input(z.object({
-        base64: z.string(),
-        filename: z.string(),
-        contentType: z.string(),
+        base64: z.string().max(MAX_BASE64_SIZE),
+        filename: z.string().max(255),
+        contentType: z.string().max(100),
         category: z.string().optional(),
         description: z.string().optional(),
         descriptionAr: z.string().optional(),
@@ -1199,7 +1225,7 @@ export const appRouter = router({
         // Check if target is root admin - cannot modify
         const existing = await db.getAdminPermissions(input.userId);
         if (existing?.isRootAdmin) {
-          throw new Error("Cannot modify root admin permissions");
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot modify root admin permissions' });
         }
         await db.setAdminPermissions(input.userId, input.permissions);
         return { success: true };
@@ -1210,7 +1236,7 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const existing = await db.getAdminPermissions(input.userId);
         if (existing?.isRootAdmin) {
-          throw new Error("Cannot delete root admin");
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete root admin' });
         }
         await db.deleteAdminPermissions(input.userId);
         return { success: true };
@@ -1488,8 +1514,8 @@ export const appRouter = router({
     listWithCounts: adminWithPermission(PERMISSIONS.MANAGE_PROPERTIES).query(async () => {
       return await db.getAllManagersWithCounts();
     }),
-    uploadPhoto: adminWithPermission(PERMISSIONS.MANAGE_CITIES)
-      .input(z.object({ base64: z.string(), filename: z.string(), contentType: z.string() }))
+    uploadPhoto: adminWithPermission(PERMISSIONS.MANAGE_PROPERTIES)
+      .input(z.object({ base64: z.string().max(MAX_BASE64_SIZE), filename: z.string().max(255), contentType: z.string().max(100) }))
       .mutation(async ({ input }) => {
         const ext = input.filename.split('.').pop() || 'jpg';
         const key = `managers/${nanoid()}.${ext}`;
@@ -1500,12 +1526,17 @@ export const appRouter = router({
     // Agent self-service: request edit link by email
     requestEditLink: publicProcedure
       .input(z.object({ email: z.string().email() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        // Rate limit to prevent email enumeration
+        const ip = getClientIP(ctx.req);
+        const rl = rateLimiter.check(`editlink:${ip}`, 5, 300000); // 5 per 5 min
+        if (!rl.allowed) throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Too many requests' });
         const manager = await db.getManagerByEmail(input.email);
-        if (!manager) throw new Error("No manager found with this email");
+        if (!manager) throw new TRPCError({ code: 'NOT_FOUND', message: 'No manager found with this email' });
         const token = nanoid(32);
         await db.setManagerEditToken(manager.id, token);
-        return { success: true, token, managerId: manager.id };
+        // Token should be sent via email in production — not returned in response
+        return { success: true, message: 'Edit link has been generated. Please check your email.' };
       }),
     // Agent self-service: get profile by edit token
     getByToken: publicProcedure
@@ -1529,7 +1560,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const manager = await db.getManagerByToken(input.token);
-        if (!manager) throw new Error("Invalid or expired token");
+        if (!manager) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Invalid or expired token' });
         const { token, ...data } = input;
         const updateData: Record<string, any> = {};
         if (data.phone !== undefined) updateData.phone = data.phone;
@@ -1544,10 +1575,11 @@ export const appRouter = router({
       }),
     // Agent self-service: upload own photo by token
     uploadSelfPhoto: publicProcedure
-      .input(z.object({ token: z.string(), base64: z.string(), filename: z.string(), contentType: z.string() }))
+      .input(z.object({ token: z.string(), base64: z.string().max(MAX_AVATAR_BASE64_SIZE), filename: z.string().max(255), contentType: z.string().max(100) }))
       .mutation(async ({ input }) => {
+        if (!validateContentType(input.contentType, ALLOWED_IMAGE_TYPES)) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid file type. Only images allowed.' });
         const manager = await db.getManagerByToken(input.token);
-        if (!manager) throw new Error("Invalid or expired token");
+        if (!manager) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Invalid or expired token' });
         const ext = input.filename.split('.').pop() || 'jpg';
         const key = `managers/${nanoid()}.${ext}`;
         const buffer = Buffer.from(input.base64, 'base64');
@@ -1560,7 +1592,7 @@ export const appRouter = router({
       .input(z.object({ managerId: z.number() }))
       .mutation(async ({ input }) => {
         const manager = await db.getPropertyManagerById(input.managerId);
-        if (!manager) throw new Error("Manager not found");
+        if (!manager) throw new TRPCError({ code: 'NOT_FOUND', message: 'Manager not found' });
         const token = nanoid(32);
         await db.setManagerEditToken(input.managerId, token);
         return { token };
@@ -1770,8 +1802,9 @@ export const appRouter = router({
       }),
     // Tenant: upload maintenance media (images/videos) to S3
     uploadMedia: protectedProcedure
-      .input(z.object({ base64: z.string(), filename: z.string(), contentType: z.string() }))
+      .input(z.object({ base64: z.string().max(MAX_BASE64_SIZE), filename: z.string().max(255), contentType: z.string().max(100) }))
       .mutation(async ({ ctx, input }) => {
+        if (!validateContentType(input.contentType)) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid file type' });
         const ext = input.filename.split('.').pop() || 'jpg';
         const key = `maintenance/${ctx.user.id}/${nanoid()}.${ext}`;
         const buffer = Buffer.from(input.base64, 'base64');
@@ -1786,11 +1819,13 @@ export const appRouter = router({
     listAll: adminWithPermission(PERMISSIONS.MANAGE_MAINTENANCE).query(async () => {
       return await db.getAllEmergencyMaintenance();
     }),
-    // Admin/anyone: get single request with updates
+    // Get single request with updates (owner or admin only)
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
         const ticket = await db.getEmergencyMaintenanceById(input.id);
+        if (!ticket) return { ticket: null, updates: [] };
+        if (ticket.tenantId !== ctx.user.id && ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
         const updates = await db.getMaintenanceUpdates(input.id);
         return { ticket, updates };
       }),
@@ -1875,8 +1910,9 @@ export const appRouter = router({
   // Upload
   upload: router({
     file: protectedProcedure
-      .input(z.object({ base64: z.string(), filename: z.string(), contentType: z.string() }))
+      .input(z.object({ base64: z.string().max(MAX_BASE64_SIZE), filename: z.string().max(255), contentType: z.string().max(100) }))
       .mutation(async ({ ctx, input }) => {
+        if (!validateContentType(input.contentType)) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid file type' });
         const ext = input.filename.split('.').pop() || 'bin';
         const key = `uploads/${ctx.user.id}/${nanoid()}.${ext}`;
         const buffer = Buffer.from(input.base64, 'base64');
@@ -1908,12 +1944,12 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         // Verify booking belongs to user and is completed
         const booking = await db.getBookingById(input.bookingId);
-        if (!booking) throw new Error("Booking not found");
-        if (booking.tenantId !== ctx.user.id) throw new Error("Unauthorized");
-        if (booking.status !== "completed") throw new Error("Can only review completed stays");
+        if (!booking) throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+        if (booking.tenantId !== ctx.user.id) throw new TRPCError({ code: 'FORBIDDEN', message: 'Unauthorized' });
+        if (booking.status !== "completed") throw new TRPCError({ code: 'BAD_REQUEST', message: 'Can only review completed stays' });
         // Check if already reviewed
         const alreadyReviewed = await db.hasUserReviewedBooking(ctx.user.id, input.bookingId);
-        if (alreadyReviewed) throw new Error("Already reviewed this booking");
+        if (alreadyReviewed) throw new TRPCError({ code: 'CONFLICT', message: 'Already reviewed this booking' });
         const id = await db.createReview({
           propertyId: input.propertyId,
           tenantId: ctx.user.id,
@@ -2009,31 +2045,28 @@ export const appRouter = router({
   // ─── Roles Management ───────────────────────────────────────────
   roles: router({
     list: adminWithPermission(PERMISSIONS.MANAGE_ROLES).query(async () => {
-      const rolesDb = drizzle(process.env.DATABASE_URL!);
-      const allRoles = await rolesDb.select().from(rolesTable);
+      const allRoles = await sharedDb.select().from(rolesTable);
       return allRoles.map(r => ({ ...r, permissions: typeof r.permissions === 'string' ? JSON.parse(r.permissions as string) : r.permissions }));
     }),
 
     getById: adminWithPermission(PERMISSIONS.MANAGE_ROLES)
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
-        const rolesDb = drizzle(process.env.DATABASE_URL!);
-        const [role] = await rolesDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, input.id));
-        if (!role) throw new Error("Role not found");
+        const [role] = await sharedDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, input.id));
+        if (!role) throw new TRPCError({ code: 'NOT_FOUND', message: 'Role not found' });
         return { ...role, permissions: typeof role.permissions === 'string' ? JSON.parse(role.permissions as string) : role.permissions };
       }),
 
     create: adminWithPermission(PERMISSIONS.MANAGE_ROLES)
       .input(z.object({
-        name: z.string(),
-        nameAr: z.string(),
-        description: z.string().optional(),
-        descriptionAr: z.string().optional(),
-        permissions: z.array(z.string()),
+        name: z.string().max(100),
+        nameAr: z.string().max(100),
+        description: z.string().max(500).optional(),
+        descriptionAr: z.string().max(500).optional(),
+        permissions: z.array(z.string().max(100)),
       }))
       .mutation(async ({ input }) => {
-        const rolesDb = drizzle(process.env.DATABASE_URL!);
-        const result = await rolesDb.insert(rolesTable).values({
+        const result = await sharedDb.insert(rolesTable).values({
           ...input,
           permissions: JSON.stringify(input.permissions),
         } as any);
@@ -2043,35 +2076,33 @@ export const appRouter = router({
     update: adminWithPermission(PERMISSIONS.MANAGE_ROLES)
       .input(z.object({
         id: z.number(),
-        name: z.string().optional(),
-        nameAr: z.string().optional(),
-        description: z.string().optional(),
-        descriptionAr: z.string().optional(),
-        permissions: z.array(z.string()).optional(),
+        name: z.string().max(100).optional(),
+        nameAr: z.string().max(100).optional(),
+        description: z.string().max(500).optional(),
+        descriptionAr: z.string().max(500).optional(),
+        permissions: z.array(z.string().max(100)).optional(),
         isActive: z.boolean().optional(),
       }))
       .mutation(async ({ input }) => {
-        const rolesDb = drizzle(process.env.DATABASE_URL!);
         const { id, permissions, ...rest } = input;
         const updateData: any = { ...rest };
         if (permissions) updateData.permissions = JSON.stringify(permissions);
         // Prevent editing system roles name
-        const [existing] = await rolesDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, id));
+        const [existing] = await sharedDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, id));
         if (existing?.isSystem) {
           delete updateData.name;
           delete updateData.nameAr;
         }
-        await rolesDb.update(rolesTable).set(updateData).where(eqDrizzle(rolesTable.id, id));
+        await sharedDb.update(rolesTable).set(updateData).where(eqDrizzle(rolesTable.id, id));
         return { success: true };
       }),
 
     delete: adminWithPermission(PERMISSIONS.MANAGE_ROLES)
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        const rolesDb = drizzle(process.env.DATABASE_URL!);
-        const [existing] = await rolesDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, input.id));
-        if (existing?.isSystem) throw new Error("Cannot delete system role");
-        await rolesDb.delete(rolesTable).where(eqDrizzle(rolesTable.id, input.id));
+        const [existing] = await sharedDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, input.id));
+        if (existing?.isSystem) throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete system role' });
+        await sharedDb.delete(rolesTable).where(eqDrizzle(rolesTable.id, input.id));
         return { success: true };
       }),
 
@@ -2082,9 +2113,8 @@ export const appRouter = router({
         roleId: z.number(),
       }))
       .mutation(async ({ input }) => {
-        const rolesDb = drizzle(process.env.DATABASE_URL!);
-        const [role] = await rolesDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, input.roleId));
-        if (!role) throw new Error("Role not found");
+        const [role] = await sharedDb.select().from(rolesTable).where(eqDrizzle(rolesTable.id, input.roleId));
+        if (!role) throw new TRPCError({ code: 'NOT_FOUND', message: 'Role not found' });
         const perms = typeof role.permissions === 'string' ? JSON.parse(role.permissions as string) : role.permissions;
         await db.setAdminPermissions(input.userId, perms);
         clearPermissionCache(input.userId);
@@ -2102,8 +2132,7 @@ export const appRouter = router({
   // AI Rating Stats for admin
   aiStats: router({
     ratingOverview: adminWithPermission(PERMISSIONS.MANAGE_AI).query(async () => {
-      const statsDb = drizzle(process.env.DATABASE_URL!);
-      const allRated = await statsDb.select().from(aiMessagesTable).where(
+      const allRated = await sharedDb.select().from(aiMessagesTable).where(
         eqDrizzle(aiMessagesTable.role, 'assistant')
       );
       const rated = allRated.filter(m => m.rating !== null && m.rating !== undefined);
@@ -2119,8 +2148,7 @@ export const appRouter = router({
       .input(z.object({ limit: z.number().optional() }).optional())
       .query(async ({ input }) => {
         const limit = input?.limit ?? 20;
-        const statsDb = drizzle(process.env.DATABASE_URL!);
-        const messages = await statsDb.select().from(aiMessagesTable)
+        const messages = await sharedDb.select().from(aiMessagesTable)
           .where(eqDrizzle(aiMessagesTable.role, 'assistant'))
           .orderBy(aiMessagesTable.createdAt)
           .limit(200);
