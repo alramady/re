@@ -689,3 +689,9 @@
 - [x] Admin users bypass maintenance mode to access full site
 - [x] Generated default coming soon hero image (uploaded to S3 CDN)
 - [x] Run tests (302 passing), save checkpoint, push to GitHub
+
+## Maintenance Page Social Media Links (Feb 16)
+- [x] Add CMS settings for social media URLs (Twitter/X, Instagram, Snapchat, TikTok, LinkedIn, YouTube)
+- [x] Add social media icons section to MaintenanceMode page (hover effects, tooltips, brand colors)
+- [x] Add social media URL fields to admin maintenance tab (6 fields with emoji labels)
+- [x] Run tests (302 passing), save checkpoint, push to GitHub

@@ -1338,6 +1338,72 @@ export default function AdminSettings() {
                   </div>
                 </div>
 
+                {/* Social Media Links */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-bold text-lg mb-1">{lang === "ar" ? "روابط التواصل الاجتماعي" : "Social Media Links"}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {lang === "ar" ? "أضف روابط حساباتك لتظهر في صفحة الصيانة وتبقي الزوار على تواصل معك" : "Add your social media URLs to display on the maintenance page and keep visitors engaged"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="flex items-center gap-2">𝕏 Twitter / X</Label>
+                      <Input
+                        value={settings["social.twitter"] || ""}
+                        onChange={(e) => updateSetting("social.twitter", e.target.value)}
+                        placeholder="https://x.com/yourhandle"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-2">📷 Instagram</Label>
+                      <Input
+                        value={settings["social.instagram"] || ""}
+                        onChange={(e) => updateSetting("social.instagram", e.target.value)}
+                        placeholder="https://instagram.com/yourhandle"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-2">👻 Snapchat</Label>
+                      <Input
+                        value={settings["social.snapchat"] || ""}
+                        onChange={(e) => updateSetting("social.snapchat", e.target.value)}
+                        placeholder="https://snapchat.com/add/yourhandle"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-2">🎵 TikTok</Label>
+                      <Input
+                        value={settings["social.tiktok"] || ""}
+                        onChange={(e) => updateSetting("social.tiktok", e.target.value)}
+                        placeholder="https://tiktok.com/@yourhandle"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-2">💼 LinkedIn</Label>
+                      <Input
+                        value={settings["social.linkedin"] || ""}
+                        onChange={(e) => updateSetting("social.linkedin", e.target.value)}
+                        placeholder="https://linkedin.com/company/yourcompany"
+                        dir="ltr"
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-2">▶️ YouTube</Label>
+                      <Input
+                        value={settings["social.youtube"] || ""}
+                        onChange={(e) => updateSetting("social.youtube", e.target.value)}
+                        placeholder="https://youtube.com/@yourchannel"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Preview hint */}
                 <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
                   <p className="text-sm text-blue-700 dark:text-blue-300">
