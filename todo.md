@@ -717,3 +717,12 @@
 - [x] Video playback in lightbox with autoplay
 - [x] Lightbox integrated in AdminEmergencyMaintenance + TenantDashboard emergency tab
 - [x] Run tests (302 passing), save checkpoint, push to GitHub
+
+## Maintenance Mode Bug Fix (Feb 16)
+- [x] Fix maintenance mode not blocking visitors when enabled — root cause: maintenance settings never seeded in DB
+- [x] Fix settings parsing bug — AdminSettings tried to parse Record<string,string> as Array<{key,value}>
+- [x] Fix maintenance toggle not auto-saving — now persists immediately on click
+- [x] Add seed-settings.ts for auto-seeding all 93 default settings on server startup
+- [x] Add Save button to maintenance tab for other field changes
+- [x] Verify non-admin users see "Coming Soon" page when maintenance mode is on (admin bypasses correctly)
+- [x] Run tests (302 passing), save checkpoint, push to GitHub

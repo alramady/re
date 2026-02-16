@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { seedAdminUser } from "../seed-admin";
 import { seedCitiesAndDistricts } from "../seed-cities";
+import { seedDefaultSettings } from "../seed-settings";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -59,9 +60,10 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  // Seed admin user on startup
+  // Seed admin user and default settings on startup
   seedAdminUser().catch(err => console.error("[Seed] Failed:", err));
   seedCitiesAndDistricts().catch(err => console.error("[Seed] Cities failed:", err));
+  seedDefaultSettings().catch(err => console.error("[Seed] Settings failed:", err));
 
   server.listen(port, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${port}/`);

@@ -61,9 +61,15 @@ export default function AdminSettings() {
 
   useEffect(() => {
     if (settingsQuery.data) {
-      const map: Record<string, string> = {};
-      const dataArr = Array.isArray(settingsQuery.data) ? settingsQuery.data : Object.values(settingsQuery.data as any);
-      (dataArr as any[]).forEach((s: any) => { map[s.key] = s.value; });
+      const raw = settingsQuery.data as any;
+      let map: Record<string, string> = {};
+      if (Array.isArray(raw)) {
+        // Array of {key, value} objects
+        raw.forEach((s: any) => { map[s.key ?? s.settingKey] = s.value ?? s.settingValue ?? ""; });
+      } else if (typeof raw === 'object') {
+        // Direct Record<string, string> from getAllSettings
+        map = { ...raw };
+      }
       setSettings(map);
       setDirty(false);
     }
@@ -1211,9 +1217,12 @@ export default function AdminSettings() {
                   <Button
                     variant={settings["maintenance.enabled"] === "true" ? "default" : "destructive"}
                     size="lg"
+                    disabled={updateMutation.isPending}
                     onClick={() => {
                       const newVal = settings["maintenance.enabled"] === "true" ? "false" : "true";
-                      updateSetting("maintenance.enabled", newVal);
+                      setSettings(prev => ({ ...prev, "maintenance.enabled": newVal }));
+                      // Auto-save immediately — critical toggle should persist without manual save
+                      updateMutation.mutate({ settings: { ...settings, "maintenance.enabled": newVal } });
                     }}
                     className="min-w-[140px]"
                   >
@@ -1403,6 +1412,12 @@ export default function AdminSettings() {
                     </div>
                   </div>
                 </div>
+
+                {/* Save button for other maintenance settings */}
+                <Button onClick={saveSettings} disabled={updateMutation.isPending} className="w-full md:w-auto">
+                  <Save className={`h-4 w-4 ${isRtl ? "ml-2" : "mr-2"}`} />
+                  {t("settings.save")}
+                </Button>
 
                 {/* Preview hint */}
                 <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">

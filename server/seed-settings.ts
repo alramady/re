@@ -1,0 +1,124 @@
+import * as db from "./db";
+
+const defaultSettings: Record<string, string> = {
+  "site.nameAr": "المفتاح الشهري",
+  "site.nameEn": "Monthly Key",
+  "site.descriptionAr": "المفتاح الشهري تربط المستأجرين بأفضل العقارات للإيجار الشهري في المملكة العربية السعودية",
+  "site.descriptionEn": "Monthly Key connects tenants with the best monthly rental properties across Saudi Arabia",
+  "site.logoUrl": "",
+  "site.faviconUrl": "",
+  "site.primaryColor": "#3ECFC0",
+  "site.accentColor": "#C9A96E",
+  "hero.titleAr": "خبير الإيجار الشهري — الآن في السعودية",
+  "hero.titleEn": "Monthly Rental Expert — Now in Saudi Arabia",
+  "hero.subtitleAr": "إدارة إيجارات شهرية متميزة | الرياض • جدة • المدينة المنورة",
+  "hero.subtitleEn": "Premium monthly rental management | Riyadh • Jeddah • Madinah",
+  "hero.bgImage": "",
+  "hero.bgType": "image",
+  "hero.bgVideo": "",
+  "hero.overlayOpacity": "60",
+  "stats.properties": "500+",
+  "stats.propertiesLabelAr": "عقار متاح",
+  "stats.propertiesLabelEn": "Available Properties",
+  "stats.tenants": "1000+",
+  "stats.tenantsLabelAr": "مستأجر سعيد",
+  "stats.tenantsLabelEn": "Happy Tenants",
+  "stats.cities": "50+",
+  "stats.citiesLabelAr": "مدينة",
+  "stats.citiesLabelEn": "Cities",
+  "stats.satisfaction": "98%",
+  "stats.satisfactionLabelAr": "رضا العملاء",
+  "stats.satisfactionLabelEn": "Customer Satisfaction",
+  "fees.serviceFeePercent": "5",
+  "fees.minRent": "500",
+  "fees.maxRent": "100000",
+  "fees.depositPercent": "10",
+  "fees.depositMonths": "1",
+  "fees.vatPercent": "15",
+  "rental.minMonths": "1",
+  "rental.maxMonths": "12",
+  "rental.minMonthsLabelAr": "الحد الأدنى لمدة الإيجار (بالأشهر)",
+  "rental.minMonthsLabelEn": "Minimum Rental Duration (months)",
+  "rental.maxMonthsLabelAr": "الحد الأقصى لمدة الإيجار (بالأشهر)",
+  "rental.maxMonthsLabelEn": "Maximum Rental Duration (months)",
+  "footer.aboutAr": "المفتاح الشهري هي المنصة الرائدة للإيجار الشهري في المملكة العربية السعودية. نقدم حلول إيجار مرنة لتسهيل تجربة السكن الشهري.",
+  "footer.aboutEn": "Monthly Key is Saudi Arabia's leading monthly rental platform. We offer flexible rental solutions for a seamless monthly living experience.",
+  "footer.email": "",
+  "footer.phone": "",
+  "footer.addressAr": "الرياض، المملكة العربية السعودية",
+  "footer.addressEn": "Riyadh, Saudi Arabia",
+  "footer.twitter": "",
+  "footer.instagram": "",
+  "footer.linkedin": "",
+  "whatsapp.number": "",
+  "whatsapp.message": "مرحباً، أحتاج مساعدة بخصوص الإيجار الشهري",
+  "whatsapp.textAr": "تواصل معنا",
+  "whatsapp.textEn": "Chat with us",
+  "legal.tourismLicence": "",
+  "legal.crNumber": "",
+  "legal.vatNumber": "",
+  "legal.ejarLicence": "",
+  "terms.contentAr": "",
+  "terms.contentEn": "",
+  "privacy.contentAr": "",
+  "privacy.contentEn": "",
+  "faq.items": "[]",
+  "maintenance.enabled": "false",
+  "maintenance.titleAr": "قريباً... الانطلاق",
+  "maintenance.titleEn": "Coming Soon",
+  "maintenance.subtitleAr": "نعمل على تجهيز تجربة مميزة لكم",
+  "maintenance.subtitleEn": "We're preparing an exceptional experience for you",
+  "maintenance.messageAr": "ستكون رحلة مميزة معنا في عالم الإيجارات الشهرية. ترقبونا!",
+  "maintenance.messageEn": "An exceptional journey awaits you in the world of monthly rentals. Stay tuned!",
+  "maintenance.imageUrl": "",
+  "maintenance.countdownDate": "",
+  "maintenance.showCountdown": "false",
+  "social.twitter": "",
+  "social.instagram": "",
+  "social.snapchat": "",
+  "social.tiktok": "",
+  "social.linkedin": "",
+  "social.youtube": "",
+  "ai.enabled": "true",
+  "ai.name": "المفتاح الشهري الذكي",
+  "ai.nameEn": "Monthly Key AI",
+  "ai.personality": "professional_friendly",
+  "ai.welcomeMessage": "مرحباً! أنا المفتاح الشهري الذكي، كيف أقدر أساعدك؟",
+  "ai.welcomeMessageEn": "Hello! I'm Monthly Key AI, how can I help you?",
+  "ai.customInstructions": "",
+  "ai.maxResponseLength": "800",
+  "payment.enabled": "false",
+  "payment.cashEnabled": "true",
+  "payment.currency": "SAR",
+  "payment.paypalClientId": "",
+  "payment.paypalSecret": "",
+  "payment.paypalMode": "sandbox",
+};
+
+/**
+ * Seeds only missing settings — does NOT overwrite existing values.
+ * Safe to call on every server startup.
+ */
+export async function seedDefaultSettings() {
+  try {
+    const existing = await db.getAllSettings();
+    const missing: Record<string, string> = {};
+    let count = 0;
+
+    for (const [key, value] of Object.entries(defaultSettings)) {
+      if (!(key in existing)) {
+        missing[key] = value;
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      await db.bulkSetSettings(missing);
+      console.log(`[Seed] Seeded ${count} missing default settings`);
+    } else {
+      console.log("[Seed] All default settings already exist");
+    }
+  } catch (err) {
+    console.error("[Seed] Failed to seed default settings:", err);
+  }
+}
