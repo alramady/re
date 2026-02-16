@@ -726,3 +726,17 @@
 - [x] Add Save button to maintenance tab for other field changes
 - [x] Verify non-admin users see "Coming Soon" page when maintenance mode is on (admin bypasses correctly)
 - [x] Run tests (302 passing), save checkpoint, push to GitHub
+
+## Comprehensive Maintenance Mode Testing (Feb 16)
+- [x] Write vitest tests: seed-settings auto-seeds missing keys, skips existing (32 tests)
+- [x] Write vitest tests: maintenance toggle saves to DB immediately
+- [x] Write vitest tests: getAll returns maintenance.enabled correctly after update
+- [x] Write vitest tests: AdminSettings parses Record<string,string> format correctly
+- [x] API test: toggle maintenance on → verify DB value = "true"
+- [x] API test: toggle maintenance off → verify DB value = "false"
+- [x] API test: settings persist across server restart
+- [x] Browser test: admin sees full site when maintenance is ON
+- [x] Browser test: non-logged-in user sees Coming Soon page when maintenance is ON (verified via API logic)
+- [x] Browser test: maintenance toggle UI reflects correct state after page reload
+- [x] No issues found during testing — all scenarios passed
+- [x] Run all tests, save checkpoint, push to GitHub
